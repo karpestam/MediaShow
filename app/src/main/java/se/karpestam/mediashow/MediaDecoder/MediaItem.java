@@ -5,6 +5,7 @@ import android.view.View;
 import android.widget.ImageView;
 
 import java.io.Serializable;
+import java.lang.ref.WeakReference;
 
 /**
  * Created by Mats on 2015-04-16.
@@ -15,7 +16,7 @@ public class MediaItem {
     public int mOrientation;
     public ImageView mImageView;
     public String mListenerId;
-    public Bitmap mBitmap;
+    public WeakReference<Bitmap> mBitmap;
 
     public MediaItem(int id, String path, int orientation) {
         mId = id;

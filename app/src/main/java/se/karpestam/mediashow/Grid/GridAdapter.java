@@ -26,10 +26,9 @@ public class GridAdapter extends CursorAdapter implements MediaItemDecoder.Media
     public GridAdapter(Context context, Cursor c, boolean autoRequery, int screenWidth, int numColumns) {
         super(context, c, autoRequery);
 
-        mMediaItemDecoder = MediaItemDecoder.getInstance();
-        mMediaItemDecoder.addListener(this.toString(), this);
         int memClass = ((ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE)).getMemoryClass();
         int cacheSize = 1024 * 1024 * memClass / 8;
+
         mBitmapLruCache = new LruCache<Integer, Bitmap>(cacheSize) {
             @Override
             protected int sizeOf(Integer key, Bitmap value) {
@@ -37,6 +36,8 @@ public class GridAdapter extends CursorAdapter implements MediaItemDecoder.Media
             }
         };
         mGridItemSize = screenWidth / numColumns;
+        mMediaItemDecoder = MediaItemDecoder.getInstance();
+        mMediaItemDecoder.addListener(this.toString(), this);
     }
 
     @Override
@@ -70,9 +71,9 @@ public class GridAdapter extends CursorAdapter implements MediaItemDecoder.Media
     @Override
     public void onMediaItem(MediaItem mediaItem) {
         if ((int) mediaItem.mImageView.getTag() == mediaItem.mId && mediaItem.mListenerId.equals(mListenerId)) {
-            mBitmapLruCache.put(mediaItem.mId, mediaItem.mBitmap);
+            mBitmapLruCache.put(mediaItem.mId, mediaItem.mBitmap.get());
             mediaItem.mImageView.setRotation(mediaItem.mOrientation);
-            mediaItem.mImageView.setImageBitmap(mediaItem.mBitmap);
+            mediaItem.mImageView.setImageBitmap(mediaItem.mBitmap.get());
         }
     }
 

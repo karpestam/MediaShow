@@ -36,7 +36,7 @@ public class FullscreenPageFragment extends Fragment implements MediaItemDecoder
         ImageView imageView = (ImageView) view.findViewById(R.id.fullscreen_image);
         imageView.setTag(mMediaItem.mId);
         if (mMediaItem.mBitmap != null) {
-            imageView.setImageBitmap(mMediaItem.mBitmap);
+            imageView.setImageBitmap(mMediaItem.mBitmap.get());
         } else {
             mMediaItem.mImageView = imageView;
             mMediaItemDecoder.decode(mMediaItem);
@@ -47,7 +47,7 @@ public class FullscreenPageFragment extends Fragment implements MediaItemDecoder
     public void onMediaItem(MediaItem mediaItem) {
         if ((int) mediaItem.mImageView.getTag() == mediaItem.mId && mediaItem.mListenerId.equals(mListenerId)) {
             mediaItem.mImageView.setRotation(mediaItem.mOrientation);
-            mediaItem.mImageView.setImageBitmap(mediaItem.mBitmap);
+            mediaItem.mImageView.setImageBitmap(mediaItem.mBitmap.get());
         }
     }
 

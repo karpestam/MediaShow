@@ -18,7 +18,7 @@ public class MainActivity extends FragmentActivity {
         setContentView(R.layout.main_activity);
 
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.add(R.id.fragment, new GridFragment(), GridFragment.FRAGMENT_TAG);
+        fragmentTransaction.replace(R.id.fragment, new GridFragment(), GridFragment.FRAGMENT_TAG);
         fragmentTransaction.commit();
     }
 

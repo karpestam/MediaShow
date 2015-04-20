@@ -103,4 +103,21 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
             ((GridView) getView().findViewById(R.id.grid_adapter)).setSelection(savedInstanceState.getInt(GRID_POSITION));
         }
     }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        if (getView() != null) {
+            GridView gridView = (GridView) getView().findViewById(R.id.grid_adapter);
+            if (gridView != null && gridView.getAdapter() != null) {
+                ((GridAdapter) gridView.getAdapter()).destroy();
+            }
+        }
+    }
 }
