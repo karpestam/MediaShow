@@ -2,15 +2,24 @@ package se.karpestam.mediashow.MediaDecoder;
 
 import android.graphics.Bitmap;
 import android.view.View;
+import android.widget.ImageView;
+
+import java.io.Serializable;
 
 /**
  * Created by Mats on 2015-04-16.
  */
 public class MediaItem {
-
-    public int mOrientation;
     public int mId;
     public String mPath;
-    public View mView;
+    public int mOrientation;
+    public ImageView mImageView;
+    public String mListenerId;
     public Bitmap mBitmap;
+
+    public MediaItem(int id, String path, int orientation) {
+        mId = id;
+        mPath = path;
+        mOrientation = orientation;
+    }
 }

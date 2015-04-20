@@ -25,6 +25,7 @@ import se.karpestam.mediashow.R;
 
 public class GridFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
+    public static final String FRAGMENT_TAG = GridFragment.class.getSimpleName();
     private static final String GRID_POSITION = "grid_position";
     private Context mContext;
     private WindowManager mWindowManager;
@@ -59,17 +60,20 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
         int numColumns = mContext.getResources().getInteger(R.integer.grid_columns);
         Point point = new Point();
         mWindowManager.getDefaultDisplay().getSize(point);
-        CursorAdapter mediaGridAdapter = new GridAdapter(mContext, cursor, false, point.x);
+        CursorAdapter mediaGridAdapter = new GridAdapter(mContext, cursor, false, point.x, numColumns);
         GridView gridView = (GridView) getView().findViewById(R.id.grid_adapter);
-        gridView.setNumColumns(point.x <= 720 ? 3 : 4);
+        gridView.setNumColumns(numColumns);
         gridView.setAdapter(mediaGridAdapter);
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 FragmentTransaction ft = getFragmentManager().beginTransaction();
-                ft.remove(GridFragment.this);
-                Log.d("MATS", "gridfragment position=" + position);
-                ft.replace(R.id.grid_fragment, new FullscreenFragment(cursor.getPosition()));
+                FullscreenFragment fullscreenFragment = new FullscreenFragment();
+                Bundle bundle = new Bundle();
+                bundle.putInt("START_POSITION", cursor.getPosition());
+                fullscreenFragment.setArguments(bundle);
+                ft.add(R.id.fragment, fullscreenFragment, FullscreenFragment.FRAGMENT_TAG);
+                ft.addToBackStack(FullscreenFragment.FRAGMENT_TAG);
                 ft.commit();
             }
         });
@@ -77,7 +81,12 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-
+        if (getView() != null) {
+            GridView gridView = (GridView) getView().findViewById(R.id.grid_adapter);
+            if (gridView != null && gridView.getAdapter() != null) {
+                ((GridAdapter) gridView.getAdapter()).destroy();
+            }
+        }
     }
 
     @Override

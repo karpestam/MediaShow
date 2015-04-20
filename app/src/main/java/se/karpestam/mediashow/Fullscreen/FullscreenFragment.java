@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -21,17 +20,15 @@ import se.karpestam.mediashow.R;
 
 public class FullscreenFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
+    public static final String FRAGMENT_TAG = FullscreenFragment.class.getSimpleName();
     private Context mContext;
     private WindowManager mWindowManager;
     private int mStartPosition;
 
-    public FullscreenFragment(int position) {
-        mStartPosition = position;
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        mStartPosition = getArguments().getInt("START_POSITION");
         return inflater.inflate(R.layout.fullscreen_slide_fragment, container, false);
     }
 
@@ -59,7 +56,7 @@ public class FullscreenFragment extends Fragment implements LoaderManager.Loader
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
         Point point = new Point();
         mWindowManager.getDefaultDisplay().getSize(point);
-        FullscreenAdapter fullscreenAdapter = new FullscreenAdapter(mContext, getFragmentManager(), cursor);
+        FullscreenAdapter fullscreenAdapter = new FullscreenAdapter(cursor, getFragmentManager());
         ViewPager viewPager = (ViewPager) getView().findViewById(R.id.pager);
         viewPager.setAdapter(fullscreenAdapter);
         viewPager.setCurrentItem(mStartPosition);

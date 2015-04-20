@@ -2,8 +2,11 @@ package se.karpestam.mediashow;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import se.karpestam.mediashow.Grid.GridFragment;
 
 
 public class MainActivity extends FragmentActivity {
@@ -14,9 +17,9 @@ public class MainActivity extends FragmentActivity {
 
         setContentView(R.layout.main_activity);
 
-        //FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-        //fragmentTransaction.replace(R.id.grid_fragment, new GridFragment());
-        //fragmentTransaction.commit();
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.add(R.id.fragment, new GridFragment(), GridFragment.FRAGMENT_TAG);
+        fragmentTransaction.commit();
     }
 
     @Override

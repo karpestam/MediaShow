@@ -7,16 +7,21 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
 public class MediaItemDecoder {
+    private static MediaItemDecoder mMediaItemDecoder;
     private static final int NUMBER_OF_BITMAP_HANDLERS = 6;
     private Handler mMainHandler;
-    private MediaItemListener mListener;
     private BitmapHandler[] mBitmapHandlers;
     private HandlerThread[] mBitmapHandlerThreads;
     private int mCurrentHandler;
+    private Map<String, MediaItemListener> mListeners;
 
-    public MediaItemDecoder(MediaItemListener gridItemCallback) {
-        mListener = gridItemCallback;
+    private MediaItemDecoder() {
+        mListeners = new HashMap<>();
         mBitmapHandlers = new BitmapHandler[NUMBER_OF_BITMAP_HANDLERS];
         mBitmapHandlerThreads = new HandlerThread[NUMBER_OF_BITMAP_HANDLERS];
         for (int i = 0; i < NUMBER_OF_BITMAP_HANDLERS; i++) {
@@ -29,13 +34,32 @@ public class MediaItemDecoder {
             public void handleMessage(Message msg) {
                 super.handleMessage(msg);
 
-                mListener.onMediaItem((MediaItem) msg.obj);
+                MediaItem mediaItem = (MediaItem) msg.obj;
+                Collection<MediaItemListener> listeners = mListeners.values();
+                for (MediaItemListener listener : listeners) {
+                    listener.onMediaItem(mediaItem);
+                }
             }
         };
     }
 
+    public static MediaItemDecoder getInstance() {
+        if (mMediaItemDecoder == null) {
+            mMediaItemDecoder = new MediaItemDecoder();
+        }
+        return mMediaItemDecoder;
+    }
+
     public interface MediaItemListener {
         void onMediaItem(MediaItem mediaItem);
+    }
+
+    public void addListener(String id, MediaItemListener mediaItemListener) {
+        mListeners.put(id, mediaItemListener);
+    }
+
+    public void removeListener(String id) {
+        mListeners.remove(id);
     }
 
     public void decode(MediaItem mediaItem) {
@@ -64,8 +88,8 @@ public class MediaItemDecoder {
             options.inPreferredConfig = Bitmap.Config.RGB_565;
             options.inJustDecodeBounds = false;
             options.inSampleSize = 5;
-            mediaItem.mBitmap = BitmapFactory.decodeFile(mediaItem.mPath, options);
             Message message = mMainHandler.obtainMessage();
+            mediaItem.mBitmap = BitmapFactory.decodeFile(mediaItem.mPath, options);
             message.obj = mediaItem;
             mMainHandler.sendMessage(message);
         }
