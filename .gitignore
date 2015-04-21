@@ -5,5 +5,7 @@
 /.idea/compiler.xml
 /.idea/vcs.xml
 /.idea/gradle.xml
+/.idea/encodings.xml
+/.idea/scope_settings.xml
 .DS_Store
 /build
