@@ -1,22 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:clickable="false"
-                android:gravity="center">
-
-    <TextView
-        android:id="@+id/grid_text"
-        android:text="Loading"
-        android:clickable="false"
-        android:layout_width="match_parent"
-        android:gravity="center"
-        android:layout_height="match_parent"/>
-
-    <ImageView
-        android:id="@+id/grid_image"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="centerCrop"/>
-
-</RelativeLayout>
+<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:transitionName="eh"
+    android:id="@+id/grid_image"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:background="?android:attr/selectableItemBackground"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:scaleType="centerCrop" />

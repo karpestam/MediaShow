@@ -32,7 +32,7 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+                             Bundle savedInstanceState) {
         Log.d("MATS", "GridFragment onCreateView");
         mContext = getActivity().getApplicationContext();
         return inflater.inflate(R.layout.grid_fragment, container, false);
@@ -43,7 +43,7 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
         super.onViewCreated(view, savedInstanceState);
 
         getActivity().getActionBar().hide();
-        mWindowManager = (WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE);
+        mWindowManager = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
     }
 
     @Override
@@ -72,8 +72,7 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
         mWindowManager.getDefaultDisplay().getSize(point);
         CursorAdapter mediaGridAdapter = new GridAdapter(mContext, cursor, false, point.x,
                 numColumns);
-        GridView gridView = (GridView)getView().findViewById(R.id.grid_adapter);
-        gridView.setNumColumns(numColumns);
+        GridView gridView = (GridView) getView().findViewById(R.id.grid_view);
         gridView.setAdapter(mediaGridAdapter);
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -83,10 +82,25 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
                 Bundle bundle = new Bundle();
                 bundle.putInt("START_POSITION", cursor.getPosition());
                 fullscreenFragment.setArguments(bundle);
+//                ft.addSharedElement(view.findViewById(R.id.grid_image), "eh");
+//                ChangeTransform changeTransform = new ChangeTransform();
+//                changeTransform.setDuration(1000);
+//                fullscreenFragment.setSharedElementEnterTransition(changeTransform);
+//                fullscreenFragment.setEnterTransition(changeTransform);
+//                GridFragment.this.setExitTransition(changeTransform);
+//                GridFragment.this.setSharedElementReturnTransition(changeTransform);
+                fullscreenFragment.setExitTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
                 ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
                 ft.add(R.id.fragment, fullscreenFragment, FullscreenFragment.FRAGMENT_TAG);
                 ft.addToBackStack(FullscreenFragment.FRAGMENT_TAG);
                 ft.commit();
+            }
+        });
+        gridView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                view.setSelected(true);
+                return false;
             }
         });
     }
@@ -100,7 +114,7 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
         View view = getView();
         if (view != null) {
             outState.putInt(GRID_POSITION,
-                    ((GridView)view.findViewById(R.id.grid_adapter)).getFirstVisiblePosition());
+                    ((GridView) view.findViewById(R.id.grid_view)).getFirstVisiblePosition());
         }
         super.onSaveInstanceState(outState);
     }
@@ -110,7 +124,7 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
         super.onViewStateRestored(savedInstanceState);
 
         if (savedInstanceState != null) {
-            ((GridView)getView().findViewById(R.id.grid_adapter))
+            ((GridView) getView().findViewById(R.id.grid_view))
                     .setSelection(savedInstanceState.getInt(GRID_POSITION));
         }
     }
@@ -119,9 +133,9 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
     public void onDetach() {
         super.onDetach();
         if (getView() != null) {
-            GridView gridView = (GridView)getView().findViewById(R.id.grid_adapter);
+            GridView gridView = (GridView) getView().findViewById(R.id.grid_view);
             if (gridView != null && gridView.getAdapter() != null) {
-                ((GridAdapter)gridView.getAdapter()).destroy();
+                ((GridAdapter) gridView.getAdapter()).destroy();
             }
         }
 

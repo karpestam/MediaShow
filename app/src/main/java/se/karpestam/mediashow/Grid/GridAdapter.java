@@ -44,17 +44,17 @@ public class GridAdapter extends CursorAdapter implements MediaItemDecoder.Media
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
         int id = cursor.getInt(cursor.getColumnIndex(MediaStore.Images.Media._ID));
-        ImageView imageView = (ImageView)view.findViewById(R.id.grid_image);
-        imageView.setTag(id);
+        String data = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
         int orientation = cursor
                 .getInt(cursor.getColumnIndex(MediaStore.Images.Media.ORIENTATION));
-        if (mMediaItemDecoder.getBitmap(id) != null) {
+        ImageView imageView = (ImageView)view.findViewById(R.id.grid_image);
+        imageView.setTag(id);
+        MediaItem mediaItem = new MediaItem(id, data, orientation);
+        if (mMediaItemDecoder.getBitmap(mediaItem) != null) {
             imageView.setRotation(orientation);
-            imageView.setImageBitmap(mMediaItemDecoder.getBitmap(id));
+            imageView.setImageBitmap(mMediaItemDecoder.getBitmap(mediaItem));
         } else {
             imageView.setImageBitmap(null);
-            String data = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
-            MediaItem mediaItem = new MediaItem(id, data, orientation);
             mediaItem.mImageView = imageView;
             mediaItem.mListenerId = mListenerId;
             mMediaItemDecoder.decode(mediaItem);

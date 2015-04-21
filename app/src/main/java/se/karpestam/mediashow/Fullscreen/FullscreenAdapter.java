@@ -37,5 +37,4 @@ public class FullscreenAdapter extends FragmentStatePagerAdapter {
     public int getCount() {
         return mCursor.getCount();
     }
-
 }

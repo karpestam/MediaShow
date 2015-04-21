@@ -1,17 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.view.ViewPager
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/pager"
+    android:background="#ff303030"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:gravity="center">
-
-    <TextView
-        android:text="Loading"
-        android:gravity="center"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
-    <ImageView
-        android:id="@+id/fullscreen_image"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"></ImageView>
-</RelativeLayout>
+    android:layout_height="match_parent"/>

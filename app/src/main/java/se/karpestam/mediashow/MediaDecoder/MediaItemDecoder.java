@@ -24,8 +24,8 @@ public class MediaItemDecoder {
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
 
-            MediaItem mediaItem = (MediaItem)msg.obj;
-            if (mediaItem.mIsResultOk) {
+            MediaItem mediaItem = (MediaItem) msg.obj;
+            if (mediaItem.mIsResultOk && !mediaItem.mRequestHighQuality) {
                 mBitmapLruCache.put(mediaItem.mId, mediaItem.mBitmap);
             }
             Collection<MediaItemListener> listeners = mListeners.values();
@@ -77,8 +77,8 @@ public class MediaItemDecoder {
         mListeners.remove(id);
     }
 
-    public Bitmap getBitmap(int id) {
-        return mBitmapLruCache.get(id);
+    public Bitmap getBitmap(MediaItem mediaItem) {
+        return mBitmapLruCache.get(mediaItem.mId);
     }
 
     public void decode(final MediaItem mediaItem) {
@@ -88,7 +88,7 @@ public class MediaItemDecoder {
                 BitmapFactory.Options options = new BitmapFactory.Options();
                 options.inPreferredConfig = Bitmap.Config.RGB_565;
                 options.inJustDecodeBounds = false;
-                options.inSampleSize = 5;
+                options.inSampleSize = mediaItem.mRequestHighQuality ? 2 : 6;
                 Message message = mMainHandler.obtainMessage();
                 mediaItem.mBitmap = BitmapFactory.decodeFile(mediaItem.mPath, options);
                 mediaItem.mIsResultOk = mediaItem.mBitmap != null;

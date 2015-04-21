@@ -5,13 +5,10 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-
-import java.util.Random;
 
 import se.karpestam.mediashow.MediaDecoder.MediaItem;
 import se.karpestam.mediashow.MediaDecoder.MediaItemDecoder;
@@ -26,14 +23,14 @@ public class FullscreenPageFragment extends Fragment implements MediaItemDecoder
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+                             Bundle savedInstanceState) {
         Bundle bundle = getArguments();
         mMediaItem = new MediaItem(bundle.getInt(MediaStore.MediaColumns._ID),
                 bundle.getString(MediaStore.MediaColumns.DATA),
                 bundle.getInt(MediaStore.Images.ImageColumns.ORIENTATION));
         mMediaItem.mListenerId = mListenerId;
         getActivity().getActionBar().hide();
-        return inflater.inflate(R.layout.fullscreen_fragment, container, false);
+        return inflater.inflate(R.layout.fullscreen_page_fragment, container, false);
     }
 
     @Override
@@ -41,23 +38,21 @@ public class FullscreenPageFragment extends Fragment implements MediaItemDecoder
         super.onViewCreated(view, savedInstanceState);
         mMediaItemDecoder = MediaItemDecoder.getInstance();
         mMediaItemDecoder.addListener(mListenerId, this);
-        ImageView imageView = (ImageView)view.findViewById(R.id.fullscreen_image);
-        Bitmap bitmap = mMediaItemDecoder.getBitmap(mMediaItem.mId);
-        Log.d("MATS", "getting bitmap");
+        ImageView imageView = (ImageView) view.findViewById(R.id.fullscreen_image);
+        mMediaItem.mRequestHighQuality = true;
+        Bitmap bitmap = mMediaItemDecoder.getBitmap(mMediaItem);
         if (bitmap != null) {
-            imageView.setRotation(mMediaItem.mOrientation);
-            imageView.setImageBitmap(bitmap);
-        } else {
-            mMediaItem.mImageView = imageView;
-            mMediaItem.mImageView.setTag(mMediaItem.mId);
-            mMediaItemDecoder.decode(mMediaItem);
+                imageView.setRotation(mMediaItem.mOrientation);
+                imageView.setImageBitmap(bitmap);
         }
+        mMediaItem.mImageView = imageView;
+        mMediaItem.mImageView.setTag(mMediaItem.mId);
+        mMediaItemDecoder.decode(mMediaItem);
     }
 
     @Override
     public void onMediaItem(MediaItem mediaItem) {
-        Log.d("MATS", "onMediaItem");
-        if ((int)mediaItem.mImageView.getTag() == mediaItem.mId && mediaItem.mListenerId
+        if ((int) mediaItem.mImageView.getTag() == mediaItem.mId && mediaItem.mListenerId
                 .equals(mListenerId)) {
             if (mediaItem.mIsResultOk) {
                 mediaItem.mImageView.setRotation(mediaItem.mOrientation);

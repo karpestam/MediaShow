@@ -11,7 +11,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
-import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,13 +28,13 @@ public class FullscreenFragment extends Fragment implements LoaderManager.Loader
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+                             Bundle savedInstanceState) {
         if (savedInstanceState == null) {
             mStartPosition = getArguments().getInt("START_POSITION");
         } else {
             mStartPosition = savedInstanceState.getInt("START_POSITION");
         }
-        return inflater.inflate(R.layout.fullscreen_slide_fragment, container, false);
+        return inflater.inflate(R.layout.fullscreen_fragment, container, false);
     }
 
     @Override
@@ -42,7 +42,7 @@ public class FullscreenFragment extends Fragment implements LoaderManager.Loader
         super.onActivityCreated(savedInstanceState);
 
         mContext = getActivity().getApplicationContext();
-        mWindowManager = (WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE);
+        mWindowManager = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
     }
 
     @Override
@@ -54,6 +54,7 @@ public class FullscreenFragment extends Fragment implements LoaderManager.Loader
     @Override
     public void onPause() {
         super.onPause();
+        mStartPosition = ((ViewPager) getView().findViewById(R.id.pager)).getCurrentItem();
         getLoaderManager().destroyLoader(0);
     }
 
@@ -68,21 +69,22 @@ public class FullscreenFragment extends Fragment implements LoaderManager.Loader
         Point point = new Point();
         mWindowManager.getDefaultDisplay().getSize(point);
         FullscreenAdapter fullscreenAdapter = new FullscreenAdapter(cursor, getFragmentManager());
-        final ViewPager viewPager = (ViewPager)getView().findViewById(R.id.pager);
+        final ViewPager viewPager = (ViewPager) getView().findViewById(R.id.pager);
         viewPager.setAdapter(fullscreenAdapter);
+        Log.d("MATS", "Start position="+mStartPosition);
         viewPager.setCurrentItem(mStartPosition);
         viewPager.setPageTransformer(true, new DepthPageTransformer());
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> cursorLoader) {
-
+        Log.d("MATS", "onLoaderReset");
+        ((ViewPager) getView().findViewById(R.id.pager)).setAdapter(null);
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        ViewPager viewPager = (ViewPager)getView().findViewById(R.id.pager);
-        outState.putInt("START_POSITION", viewPager.getCurrentItem());
+        outState.putInt("START_POSITION", mStartPosition);
         super.onSaveInstanceState(outState);
     }
 

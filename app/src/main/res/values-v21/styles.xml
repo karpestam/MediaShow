@@ -4,5 +4,7 @@
     <style name="AppTheme" parent="android:Theme.Material">
         <!--<item name="android:windowTranslucentStatus">true</item>-->
         <!--<item name="android:windowTranslucentNavigation">true</item>-->
+        <!-- enable window content transitions -->
+        <!--<item name="android:windowContentTransitions">true</item>-->
     </style>
 </resources>

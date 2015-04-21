@@ -18,6 +18,7 @@ public class MediaItem {
     public String mListenerId;
     public Bitmap mBitmap;
     public boolean mIsResultOk;
+    public boolean mRequestHighQuality;
     public MediaItem(int id, String path, int orientation) {
         mId = id;
         mPath = path;
