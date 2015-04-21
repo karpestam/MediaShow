@@ -31,7 +31,9 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
     private WindowManager mWindowManager;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
+        Log.d("MATS", "GridFragment onCreateView");
         mContext = getActivity().getApplicationContext();
         return inflater.inflate(R.layout.grid_fragment, container, false);
     }
@@ -41,7 +43,7 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
         super.onViewCreated(view, savedInstanceState);
 
         getActivity().getActionBar().hide();
-        mWindowManager = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
+        mWindowManager = (WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE);
     }
 
     @Override
@@ -51,8 +53,16 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+
+        getLoaderManager().destroyLoader(0);
+    }
+
+    @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return new CursorLoader(mContext, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null, null, null, MediaStore.Images.ImageColumns.DATE_TAKEN + " DESC");
+        return new CursorLoader(mContext, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null, null,
+                null, MediaStore.Images.ImageColumns.DATE_TAKEN + " DESC");
     }
 
     @Override
@@ -60,8 +70,9 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
         int numColumns = mContext.getResources().getInteger(R.integer.grid_columns);
         Point point = new Point();
         mWindowManager.getDefaultDisplay().getSize(point);
-        CursorAdapter mediaGridAdapter = new GridAdapter(mContext, cursor, false, point.x, numColumns);
-        GridView gridView = (GridView) getView().findViewById(R.id.grid_adapter);
+        CursorAdapter mediaGridAdapter = new GridAdapter(mContext, cursor, false, point.x,
+                numColumns);
+        GridView gridView = (GridView)getView().findViewById(R.id.grid_adapter);
         gridView.setNumColumns(numColumns);
         gridView.setAdapter(mediaGridAdapter);
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -72,6 +83,7 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
                 Bundle bundle = new Bundle();
                 bundle.putInt("START_POSITION", cursor.getPosition());
                 fullscreenFragment.setArguments(bundle);
+                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
                 ft.add(R.id.fragment, fullscreenFragment, FullscreenFragment.FRAGMENT_TAG);
                 ft.addToBackStack(FullscreenFragment.FRAGMENT_TAG);
                 ft.commit();
@@ -81,17 +93,15 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        if (getView() != null) {
-            GridView gridView = (GridView) getView().findViewById(R.id.grid_adapter);
-            if (gridView != null && gridView.getAdapter() != null) {
-                ((GridAdapter) gridView.getAdapter()).destroy();
-            }
-        }
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putInt(GRID_POSITION, ((GridView) getView().findViewById(R.id.grid_adapter)).getFirstVisiblePosition());
+        View view = getView();
+        if (view != null) {
+            outState.putInt(GRID_POSITION,
+                    ((GridView)view.findViewById(R.id.grid_adapter)).getFirstVisiblePosition());
+        }
         super.onSaveInstanceState(outState);
     }
 
@@ -100,24 +110,20 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
         super.onViewStateRestored(savedInstanceState);
 
         if (savedInstanceState != null) {
-            ((GridView) getView().findViewById(R.id.grid_adapter)).setSelection(savedInstanceState.getInt(GRID_POSITION));
+            ((GridView)getView().findViewById(R.id.grid_adapter))
+                    .setSelection(savedInstanceState.getInt(GRID_POSITION));
         }
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-
+    public void onDetach() {
+        super.onDetach();
         if (getView() != null) {
-            GridView gridView = (GridView) getView().findViewById(R.id.grid_adapter);
+            GridView gridView = (GridView)getView().findViewById(R.id.grid_adapter);
             if (gridView != null && gridView.getAdapter() != null) {
-                ((GridAdapter) gridView.getAdapter()).destroy();
+                ((GridAdapter)gridView.getAdapter()).destroy();
             }
         }
+
     }
 }

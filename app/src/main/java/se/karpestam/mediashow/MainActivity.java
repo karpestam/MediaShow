@@ -17,9 +17,13 @@ public class MainActivity extends FragmentActivity {
 
         setContentView(R.layout.main_activity);
 
-        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.replace(R.id.fragment, new GridFragment(), GridFragment.FRAGMENT_TAG);
-        fragmentTransaction.commit();
+        if (savedInstanceState == null) {
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager()
+                    .beginTransaction();
+            fragmentTransaction
+                    .replace(R.id.fragment, new GridFragment(), GridFragment.FRAGMENT_TAG);
+            fragmentTransaction.commit();
+        }
     }
 
     @Override

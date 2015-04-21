@@ -16,8 +16,8 @@ public class MediaItem {
     public int mOrientation;
     public ImageView mImageView;
     public String mListenerId;
-    public WeakReference<Bitmap> mBitmap;
-
+    public Bitmap mBitmap;
+    public boolean mIsResultOk;
     public MediaItem(int id, String path, int orientation) {
         mId = id;
         mPath = path;
