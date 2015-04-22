@@ -70,8 +70,8 @@ public class FullscreenFragment extends Fragment implements LoaderManager.Loader
         mWindowManager.getDefaultDisplay().getSize(point);
         FullscreenAdapter fullscreenAdapter = new FullscreenAdapter(cursor, getFragmentManager());
         final ViewPager viewPager = (ViewPager) getView().findViewById(R.id.pager);
+        viewPager.setOffscreenPageLimit(1);
         viewPager.setAdapter(fullscreenAdapter);
-        Log.d("MATS", "Start position="+mStartPosition);
         viewPager.setCurrentItem(mStartPosition);
         viewPager.setPageTransformer(true, new DepthPageTransformer());
     }
