@@ -17,6 +17,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".Grid.GridActivity"
+            android:label="@string/app_name"></activity>
+        <activity
+            android:theme="@style/AppTheme.Fullscreen"
+            android:name=".Fullscreen.FullScreenActivity"
+            android:label="@string/app_name"></activity>
     </application>
 
 </manifest>

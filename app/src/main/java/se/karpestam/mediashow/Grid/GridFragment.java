@@ -1,6 +1,8 @@
 package se.karpestam.mediashow.Grid;
 
+import android.app.ActivityOptions;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Point;
 import android.os.Bundle;
@@ -10,6 +12,8 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.transition.ChangeTransform;
+import android.transition.Transition;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,7 +22,9 @@ import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.CursorAdapter;
 import android.widget.GridView;
+import android.widget.ImageView;
 
+import se.karpestam.mediashow.Fullscreen.FullScreenActivity;
 import se.karpestam.mediashow.Fullscreen.FullscreenFragment;
 import se.karpestam.mediashow.R;
 
@@ -29,6 +35,8 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
     private static final String GRID_POSITION = "grid_position";
     private Context mContext;
     private WindowManager mWindowManager;
+
+    private int mLatestGridPosition = 0;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -46,14 +54,16 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
 
     @Override
     public void onResume() {
+        Log.d("MATS", "GridFragment onResume");
         super.onResume();
         getLoaderManager().restartLoader(0, null, this);
     }
 
     @Override
     public void onPause() {
+        Log.d("MATS", "GridFragment onPause");
         super.onPause();
-
+        mLatestGridPosition = ((GridView) getView().findViewById(R.id.grid_view)).getFirstVisiblePosition();
         getLoaderManager().destroyLoader(0);
     }
 
@@ -68,30 +78,23 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
         int numColumns = mContext.getResources().getInteger(R.integer.grid_columns);
         Point point = new Point();
         mWindowManager.getDefaultDisplay().getSize(point);
+        final GridView gridView = (GridView) getView().findViewById(R.id.grid_view);
+        int spacing = gridView.getHorizontalSpacing();
         CursorAdapter mediaGridAdapter = new GridAdapter(mContext, cursor, false, point.x,
-                numColumns);
-        GridView gridView = (GridView) getView().findViewById(R.id.grid_view);
+                numColumns, spacing);
         gridView.setAdapter(mediaGridAdapter);
+        gridView.setSelection(mLatestGridPosition);
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                FragmentTransaction ft = getFragmentManager().beginTransaction();
-                FullscreenFragment fullscreenFragment = new FullscreenFragment();
-                Bundle bundle = new Bundle();
-                bundle.putInt("START_POSITION", cursor.getPosition());
-                fullscreenFragment.setArguments(bundle);
-//                ft.addSharedElement(view.findViewById(R.id.grid_image), "eh");
-//                ChangeTransform changeTransform = new ChangeTransform();
-//                changeTransform.setDuration(1000);
-//                fullscreenFragment.setSharedElementEnterTransition(changeTransform);
-//                fullscreenFragment.setEnterTransition(changeTransform);
-//                GridFragment.this.setExitTransition(changeTransform);
-//                GridFragment.this.setSharedElementReturnTransition(changeTransform);
-                fullscreenFragment.setExitTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-                ft.add(R.id.fragment, fullscreenFragment, FullscreenFragment.FRAGMENT_TAG);
-                ft.addToBackStack(FullscreenFragment.FRAGMENT_TAG);
-                ft.commit();
+                Intent intent = new Intent(mContext, FullScreenActivity.class);
+                intent.putExtra("START_POSITION", position);
+                Log.d("MATS", "onItemClick " + (view instanceof ImageView));
+                Transition transition = new ChangeTransform();
+                getActivity().getWindow().setEnterTransition(transition);
+                getActivity().getWindow().setExitTransition(transition);
+                //ActivityOptions.makeSceneTransitionAnimation(getActivity(), view, "eh").toBundle()
+                getActivity().startActivity(intent);
             }
         });
         gridView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
@@ -109,6 +112,7 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
+        Log.d("MATS", "GridFragment onSaveInstanceState " + outState);
         View view = getView();
         if (view != null) {
             outState.putInt(GRID_POSITION,
@@ -119,6 +123,7 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
 
     @Override
     public void onViewStateRestored(Bundle savedInstanceState) {
+        Log.d("MATS", "GridFragment onViewStateRestored " + savedInstanceState);
         super.onViewStateRestored(savedInstanceState);
 
         if (savedInstanceState != null) {

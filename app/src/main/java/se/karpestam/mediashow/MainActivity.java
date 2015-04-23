@@ -1,11 +1,16 @@
 package se.karpestam.mediashow;
 
+import android.app.ActionBar;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
+import se.karpestam.mediashow.Grid.GridActivity;
 import se.karpestam.mediashow.Grid.GridFragment;
 
 
@@ -15,15 +20,8 @@ public class MainActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.main_activity);
-
-        if (savedInstanceState == null) {
-            FragmentTransaction fragmentTransaction = getSupportFragmentManager()
-                    .beginTransaction();
-            fragmentTransaction
-                    .replace(R.id.fragment, new GridFragment(), GridFragment.FRAGMENT_TAG);
-            fragmentTransaction.commit();
-        }
+        startActivity(new Intent(getApplicationContext(), GridActivity.class));
+        finish();
     }
 
     @Override

@@ -30,7 +30,7 @@ public class FullscreenFragment extends Fragment implements LoaderManager.Loader
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         if (savedInstanceState == null) {
-            mStartPosition = getArguments().getInt("START_POSITION");
+            mStartPosition = getActivity().getIntent().getIntExtra("START_POSITION", 0);
         } else {
             mStartPosition = savedInstanceState.getInt("START_POSITION");
         }
@@ -70,7 +70,7 @@ public class FullscreenFragment extends Fragment implements LoaderManager.Loader
         mWindowManager.getDefaultDisplay().getSize(point);
         FullscreenAdapter fullscreenAdapter = new FullscreenAdapter(cursor, getFragmentManager());
         final ViewPager viewPager = (ViewPager) getView().findViewById(R.id.pager);
-        viewPager.setOffscreenPageLimit(1);
+//        viewPager.setOffscreenPageLimit(1);
         viewPager.setAdapter(fullscreenAdapter);
         viewPager.setCurrentItem(mStartPosition);
         viewPager.setPageTransformer(true, new DepthPageTransformer());

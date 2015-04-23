@@ -4,15 +4,15 @@ import android.graphics.Bitmap;
 import android.widget.ImageView;
 
 public class RequestResult {
-    public int mId;
+    public String mPath;
     public ImageView mImageView;
     public String mListenerId;
     public Bitmap mBitmap;
     public boolean mIsResultOk;
 
-    public RequestResult(int id, Bitmap bitmap, ImageView imageView, String listenerId,
-            boolean isResultOk) {
-        mId = id;
+    public RequestResult(String path, Bitmap bitmap, ImageView imageView, String listenerId,
+                         boolean isResultOk) {
+        mPath = path;
         mBitmap = bitmap;
         mImageView = imageView;
         mListenerId = listenerId;

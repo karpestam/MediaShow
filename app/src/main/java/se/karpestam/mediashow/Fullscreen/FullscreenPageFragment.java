@@ -25,9 +25,13 @@ public class FullscreenPageFragment extends Fragment implements RequestListener 
 
     private final String mListenerId = toString();
 
+    private BitmapRequester mBitmapRequester;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+                             Bundle savedInstanceState) {
+        mBitmapRequester = BitmapRequester.getInstance(getActivity().getApplicationContext());
+        mBitmapRequester.addListener(mListenerId, this);
         return inflater.inflate(R.layout.fullscreen_page_fragment, container, false);
     }
 
@@ -36,35 +40,24 @@ public class FullscreenPageFragment extends Fragment implements RequestListener 
         super.onViewCreated(view, savedInstanceState);
         /* Get values. */
         Bundle bundle = getArguments();
-        final int id = bundle.getInt(MediaStore.MediaColumns._ID);
         final String data = bundle.getString(MediaStore.MediaColumns.DATA);
         final int orientation = bundle.getInt(MediaStore.Images.ImageColumns.ORIENTATION);
 
-        WindowManager windowManager = (WindowManager)getActivity()
+        WindowManager windowManager = (WindowManager) getActivity()
                 .getSystemService(Context.WINDOW_SERVICE);
         Point point = new Point();
         windowManager.getDefaultDisplay().getSize(point);
-        ImageView imageView = (ImageView)view.findViewById(R.id.fullscreen_image);
-
-        BitmapRequester.getInstance().addListener(mListenerId, this);
-        /* See if there's any cached Bitmap. */
-        Bitmap bitmap = BitmapCache.getInstance().get(id);
-        if (bitmap != null) {
-            /* Set the cached Bitmap, this is only low-res. */
-            imageView.setImageBitmap(bitmap);
-        } else {
-            imageView.setImageBitmap(null);
-        }
-        /* Always request high-res, since they are not cached. */
-        BitmapRequester.getInstance().requestBitmap(
-                new RequestJob(id, data, orientation, imageView, mListenerId, true, point.x,
-                        point.y));
+        ImageView imageView = (ImageView) view.findViewById(R.id.fullscreen_image);
+        imageView.setTag(data);
+        Bitmap bitmap = mBitmapRequester.requestBitmap(new RequestJob(data, orientation, imageView, mListenerId, true, point.x,
+                point.y));
+        imageView.setImageBitmap(bitmap);
     }
 
     @Override
     public void onRequestResult(RequestResult requestResult) {
-        if ((int)requestResult.mImageView
-                .getTag() == requestResult.mId && requestResult.mListenerId.equals(mListenerId)) {
+        String tag = (String) requestResult.mImageView.getTag();
+        if (tag.equals(requestResult.mPath) && requestResult.mListenerId.equals(mListenerId)) {
             if (requestResult.mIsResultOk) {
                 requestResult.mImageView.setImageBitmap(requestResult.mBitmap);
             } else {
@@ -76,7 +69,6 @@ public class FullscreenPageFragment extends Fragment implements RequestListener 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-
-        BitmapRequester.getInstance().removeListener(mListenerId);
+        mBitmapRequester.removeListener(mListenerId);
     }
 }
