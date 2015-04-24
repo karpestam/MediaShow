@@ -28,9 +28,9 @@ public class FullscreenFragment extends Fragment implements LoaderManager.Loader
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+            Bundle savedInstanceState) {
         if (savedInstanceState == null) {
-            mStartPosition = getActivity().getIntent().getIntExtra("START_POSITION", 0);
+            mStartPosition = getArguments().getInt("START_POSITION");
         } else {
             mStartPosition = savedInstanceState.getInt("START_POSITION");
         }
@@ -42,7 +42,7 @@ public class FullscreenFragment extends Fragment implements LoaderManager.Loader
         super.onActivityCreated(savedInstanceState);
 
         mContext = getActivity().getApplicationContext();
-        mWindowManager = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
+        mWindowManager = (WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE);
     }
 
     @Override
@@ -54,7 +54,7 @@ public class FullscreenFragment extends Fragment implements LoaderManager.Loader
     @Override
     public void onPause() {
         super.onPause();
-        mStartPosition = ((ViewPager) getView().findViewById(R.id.pager)).getCurrentItem();
+        mStartPosition = ((ViewPager)getView().findViewById(R.id.pager)).getCurrentItem();
         getLoaderManager().destroyLoader(0);
     }
 
@@ -69,7 +69,7 @@ public class FullscreenFragment extends Fragment implements LoaderManager.Loader
         Point point = new Point();
         mWindowManager.getDefaultDisplay().getSize(point);
         FullscreenAdapter fullscreenAdapter = new FullscreenAdapter(cursor, getFragmentManager());
-        final ViewPager viewPager = (ViewPager) getView().findViewById(R.id.pager);
+        final ViewPager viewPager = (ViewPager)getView().findViewById(R.id.pager);
 //        viewPager.setOffscreenPageLimit(1);
         viewPager.setAdapter(fullscreenAdapter);
         viewPager.setCurrentItem(mStartPosition);
@@ -79,7 +79,7 @@ public class FullscreenFragment extends Fragment implements LoaderManager.Loader
     @Override
     public void onLoaderReset(Loader<Cursor> cursorLoader) {
         Log.d("MATS", "onLoaderReset");
-        ((ViewPager) getView().findViewById(R.id.pager)).setAdapter(null);
+        ((ViewPager)getView().findViewById(R.id.pager)).setAdapter(null);
     }
 
     @Override

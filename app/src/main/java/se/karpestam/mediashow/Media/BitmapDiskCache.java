@@ -34,7 +34,9 @@ class BitmapDiskCache {
                 }
             }
         };
+        long start = System.currentTimeMillis();
         readCacheFromDisk(mCacheDir);
+        Log.d("MATS", "readCacheFromDisk took " + (System.currentTimeMillis() - start));
     }
 
     public void add(String filePath, Bitmap bitmap) {
@@ -44,16 +46,24 @@ class BitmapDiskCache {
             cacheDir.mkdirs();
         }
         if (cacheDir.exists()) {
+            File outFile = null;
             try {
-                File outFile = new File(cacheDir.getAbsolutePath(), inFile.getName());
+                outFile = new File(cacheDir.getAbsolutePath(), inFile.getName());
+                outFile.setReadable(false);
                 if (outFile.createNewFile()) {
                     FileOutputStream outputStream = new FileOutputStream(outFile);
                     bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
                     outputStream.close();
-                    mFileCache.put(outFile.getAbsolutePath(), new FileMirror(outFile.getAbsolutePath(), (int) outFile.length()));
+                    mFileCache.put(outFile.getAbsolutePath(),
+                            new FileMirror(outFile.getAbsolutePath(), (int)outFile.length()));
                 }
             } catch (IOException e) {
 
+            }
+            finally {
+                if (outFile != null) {
+                    outFile.setReadable(true);
+                }
             }
         }
     }
@@ -91,7 +101,6 @@ class BitmapDiskCache {
     private class FileMirror {
         public String mFilePath;
         public int mFileSize;
-
         public FileMirror(String filePath, int fileSize) {
             mFilePath = filePath;
             mFileSize = fileSize;
