@@ -6,6 +6,7 @@ import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.util.Log;
 
 public class FullscreenAdapter extends FragmentStatePagerAdapter {
 
@@ -19,18 +20,32 @@ public class FullscreenAdapter extends FragmentStatePagerAdapter {
     @Override
     public Fragment getItem(int i) {
         mCursor.moveToPosition(i);
-        final int id = mCursor.getInt(mCursor.getColumnIndex(MediaStore.Images.Media._ID));
         final String data = mCursor
-                .getString(mCursor.getColumnIndex(MediaStore.Images.Media.DATA));
+                .getString(mCursor.getColumnIndex(MediaStore.Files.FileColumns.DATA));
         final int orientation = mCursor
                 .getInt(mCursor.getColumnIndex(MediaStore.Images.Media.ORIENTATION));
+        final int mediaType = mCursor.getInt(mCursor.getColumnIndex(MediaStore.Files.FileColumns.MEDIA_TYPE));
+        final int width = mCursor.getInt(mCursor.getColumnIndex(MediaStore.Video.VideoColumns.WIDTH));
+        Log.d("MATS", "width " + width
+        );
+        final int height = mCursor.getInt(mCursor.getColumnIndex(MediaStore.Video.VideoColumns.HEIGHT));
         Bundle bundle = new Bundle();
-        bundle.putInt(MediaStore.MediaColumns._ID, id);
         bundle.putInt(MediaStore.Images.ImageColumns.ORIENTATION, orientation);
-        bundle.putString(MediaStore.MediaColumns.DATA, data);
-        FullscreenPageFragment fullscreenFragment = new FullscreenPageFragment();
-        fullscreenFragment.setArguments(bundle);
-        return fullscreenFragment;
+        bundle.putString(MediaStore.Files.FileColumns.DATA, data);
+        bundle.putInt(MediaStore.Files.FileColumns.MEDIA_TYPE, mediaType);
+        bundle.putInt(MediaStore.Video.VideoColumns.WIDTH, width);
+        bundle.putInt(MediaStore.Video.VideoColumns.HEIGHT, height);
+        switch (mediaType) {
+            case MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE:
+                FullscreenImageFragment fullscreenFragment = new FullscreenImageFragment();
+                fullscreenFragment.setArguments(bundle);
+                return fullscreenFragment;
+            case MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO:
+                FullscreenVideoFragment videoFragment = new FullscreenVideoFragment();
+                videoFragment.setArguments(bundle);
+                return videoFragment;
+        }
+        return null;
     }
 
     @Override

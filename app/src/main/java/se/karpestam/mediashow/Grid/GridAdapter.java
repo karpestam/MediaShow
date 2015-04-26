@@ -5,8 +5,6 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.provider.MediaStore;
-import android.provider.MediaStore.MediaColumns;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
@@ -26,7 +24,7 @@ public class GridAdapter extends CursorAdapter implements RequestListener {
     private BitmapRequester mBitmapRequester;
 
     public GridAdapter(Context context, Cursor c, boolean autoRequery, int screenWidth,
-            int numColumns, int spacing) {
+                       int numColumns, int spacing) {
         super(context, c, autoRequery);
 
         mGridItemSize = (screenWidth / numColumns) - spacing;
@@ -46,23 +44,22 @@ public class GridAdapter extends CursorAdapter implements RequestListener {
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
         /* Get cursor values. */
-        final String data = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
-        final String mimeType = cursor.getString(cursor.getColumnIndex(MediaColumns.MIME_TYPE));
-        Log.d("MATS", "mimeType " + mimeType + " data " + data);
-//        final int orientation = cursor
-//                .getInt(cursor.getColumnIndex(MediaStore.Images.Media.ORIENTATION));
-
-        ImageView imageView = (ImageView)view.findViewById(R.id.grid_image);
+        final String data = cursor.getString(cursor.getColumnIndex(MediaStore.Files.FileColumns.DATA));
+        final int mediaType = cursor.getInt(cursor.getColumnIndex(MediaStore.Files.FileColumns.MEDIA_TYPE));
+        ImageView imageView = (ImageView) view.findViewById(R.id.grid_image);
+        imageView.setImageBitmap(null);
         imageView.setTag(data);
+        int orientation = cursor
+                .getInt(cursor.getColumnIndex(MediaStore.Images.Media.ORIENTATION));
         Bitmap bitmap = mBitmapRequester.requestBitmap(
-                new RequestJob(data, 0, imageView, mListenerId, false, mGridItemSize,
-                        mGridItemSize));
+                new RequestJob(data, orientation, imageView, mListenerId, false, mGridItemSize,
+                        mGridItemSize, mediaType));
         imageView.setImageBitmap(bitmap);
     }
 
     @Override
     public void onRequestResult(RequestResult requestResult) {
-        String tag = (String)requestResult.mImageView.getTag();
+        String tag = (String) requestResult.mImageView.getTag();
         if (tag.equals(requestResult.mPath) && requestResult.mListenerId.equals(mListenerId)) {
             if (requestResult.mIsResultOk) {
                 requestResult.mImageView.setImageBitmap(requestResult.mBitmap);

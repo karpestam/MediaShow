@@ -1,35 +1,25 @@
 package se.karpestam.mediashow.Grid;
 
-import android.content.ContentResolver;
 import android.content.Context;
-import android.database.CharArrayBuffer;
-import android.database.ContentObserver;
 import android.database.Cursor;
-import android.database.CursorJoiner;
-import android.database.CursorWrapper;
-import android.database.DataSetObserver;
-import android.database.MatrixCursor;
-import android.database.MergeCursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Point;
-import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.provider.MediaStore;
-import android.provider.MediaStore.Images.ImageColumns;
-import android.provider.MediaStore.MediaColumns;
-import android.provider.MediaStore.Video;
-import android.provider.MediaStore.Video.Media;
-import android.provider.MediaStore.Video.VideoColumns;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
-import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.util.Log;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.CursorAdapter;
 import android.widget.GridView;
@@ -45,12 +35,11 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
     private static final String GRID_POSITION = "grid_position";
     private Context mContext;
     private WindowManager mWindowManager;
-
     private int mGridStartPosition = 0;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+                             Bundle savedInstanceState) {
         Log.d(Constants.LOG_TAG, GridFragment.class.getSimpleName() + " onCreateView() " +
                 "savedInstanceState=" + savedInstanceState);
         mContext = getActivity().getApplicationContext();
@@ -63,7 +52,7 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mWindowManager = (WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE);
+        mWindowManager = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
     }
 
     @Override
@@ -75,7 +64,7 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public void onPause() {
         super.onPause();
-        mGridStartPosition = ((GridView)getView().findViewById(R.id.grid_view))
+        mGridStartPosition = ((GridView) getView().findViewById(R.id.grid_view))
                 .getFirstVisiblePosition();
         getLoaderManager().destroyLoader(0);
     }
@@ -83,9 +72,9 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return new CursorLoader(mContext, MediaStore.Files.getContentUri("external"), null,
-                MediaColumns.MIME_TYPE + " = ? OR " + MediaColumns.MIME_TYPE + " = ?", new
-                String[]{"image/jpeg",
-                "video/mp4"},
+                MediaStore.Files.FileColumns.MEDIA_TYPE + " = ? OR " + MediaStore.Files.FileColumns.MEDIA_TYPE + " = ?", new
+                String[]{String.valueOf(MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE),
+                String.valueOf(MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO)},
                 MediaStore.Images.ImageColumns.DATE_TAKEN + " DESC");
 
     }
@@ -95,7 +84,7 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
         int numColumns = mContext.getResources().getInteger(R.integer.grid_columns);
         Point point = new Point();
         mWindowManager.getDefaultDisplay().getSize(point);
-        final GridView gridView = (GridView)getView().findViewById(R.id.grid_view);
+        final GridView gridView = (GridView) getView().findViewById(R.id.grid_view);
         int spacing = gridView.getHorizontalSpacing();
         CursorAdapter mediaGridAdapter = new GridAdapter(mContext, cursor, false, point.x,
                 numColumns, spacing);
@@ -116,9 +105,30 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
         gridView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position,
-                    long id) {
-                view.setSelected(true);
-                return false;
+                                           long id) {
+                getActivity().startActionMode(new ActionMode.Callback() {
+                    @Override
+                    public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                        return false;
+                    }
+
+                    @Override
+                    public void onDestroyActionMode(ActionMode mode) {
+
+                    }
+                });
+                view.setSelected(view.isSelected());
+                return true;
             }
         });
     }
@@ -138,7 +148,7 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
         super.onViewStateRestored(savedInstanceState);
 
         if (savedInstanceState != null) {
-            ((GridView)getView().findViewById(R.id.grid_view))
+            ((GridView) getView().findViewById(R.id.grid_view))
                     .setSelection(savedInstanceState.getInt(GRID_POSITION));
         }
     }
@@ -147,9 +157,9 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
     public void onDetach() {
         super.onDetach();
         if (getView() != null) {
-            GridView gridView = (GridView)getView().findViewById(R.id.grid_view);
+            GridView gridView = (GridView) getView().findViewById(R.id.grid_view);
             if (gridView != null && gridView.getAdapter() != null) {
-                ((GridAdapter)gridView.getAdapter()).destroy();
+                ((GridAdapter) gridView.getAdapter()).destroy();
             }
         }
 

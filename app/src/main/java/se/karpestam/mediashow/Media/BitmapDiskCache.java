@@ -1,8 +1,10 @@
 package se.karpestam.mediashow.Media;
 
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Environment;
 import android.support.v4.util.LruCache;
 import android.util.Log;
 
@@ -17,7 +19,7 @@ class BitmapDiskCache {
     private LruCache<String, FileMirror> mFileCache;
 
     public BitmapDiskCache(Context context) {
-        mCacheDir = new File(context.getCacheDir().getAbsolutePath(), CACHE_FOLDER_SUFFIX);
+        mCacheDir = new File(context.getApplicationContext().getCacheDir().getAbsolutePath(), CACHE_FOLDER_SUFFIX);
         mCacheDir.mkdir();
         mFileCache = new LruCache<String, FileMirror>(DISK_CACHE_SIZE) {
             @Override

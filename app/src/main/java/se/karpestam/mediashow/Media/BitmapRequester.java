@@ -3,8 +3,11 @@ package se.karpestam.mediashow.Media;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
+import android.media.ThumbnailUtils;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.MediaStore;
+import android.util.Log;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -22,6 +25,7 @@ public class BitmapRequester {
     private ThreadPoolExecutor mExecutor;
     private BitmapCache mBitmapCache;
     private BitmapDiskCache mBitmapDiskCache;
+    private Context mContext;
     /**
      * Handles all listener callbacks and puts the decoded Bitmap to the cache.
      */
@@ -42,6 +46,7 @@ public class BitmapRequester {
     };
 
     private BitmapRequester(Context context) {
+        mContext = context;
         mBitmapCache = new BitmapCache();
         mBitmapDiskCache = new BitmapDiskCache(context);
         /* Create thread pool that executes Runnable. Execution order is LIFO(last in first out)
@@ -98,7 +103,12 @@ public class BitmapRequester {
                         bitmap = mBitmapDiskCache.get(requestJob.mPath);
                     }
                     if (bitmap == null) {
-                        bitmap = BitmapHelper.resize(requestJob.mPath, requestJob.mWidth, requestJob.mHeight, requestJob.mOrientation, (requestJob.mHighQuality ? Config.ARGB_8888 : Config.RGB_565));
+                        if (requestJob.mMediaType == MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE) {
+                            bitmap = BitmapHelper.resize(requestJob.mPath, requestJob.mWidth, requestJob.mHeight, requestJob.mOrientation, (requestJob.mHighQuality ? Config.ARGB_8888 : Config.RGB_565));
+                        } else {
+                            bitmap = ThumbnailUtils.createVideoThumbnail(requestJob.mPath, requestJob.mHighQuality ? MediaStore.Video.Thumbnails.FULL_SCREEN_KIND : MediaStore.Video.Thumbnails.MINI_KIND);
+                            Log.d("MATS", "bitmap " + bitmap.getWidth() + " " + bitmap.getHeight());
+                        }
                         if (!requestJob.mHighQuality) {
                             mBitmapDiskCache.add(requestJob.mPath, bitmap);
                         }

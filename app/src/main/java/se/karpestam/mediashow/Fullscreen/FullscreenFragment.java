@@ -60,8 +60,11 @@ public class FullscreenFragment extends Fragment implements LoaderManager.Loader
 
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        return new CursorLoader(mContext, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null, null,
-                null, MediaStore.Images.ImageColumns.DATE_TAKEN + " DESC");
+        return new CursorLoader(mContext, MediaStore.Files.getContentUri("external"), null,
+                MediaStore.Files.FileColumns.MEDIA_TYPE + " = ? OR " + MediaStore.Files.FileColumns.MEDIA_TYPE + " = ?", new
+                String[]{String.valueOf(MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE),
+                String.valueOf(MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO)},
+                MediaStore.Images.ImageColumns.DATE_TAKEN + " DESC");
     }
 
     @Override
@@ -70,7 +73,7 @@ public class FullscreenFragment extends Fragment implements LoaderManager.Loader
         mWindowManager.getDefaultDisplay().getSize(point);
         FullscreenAdapter fullscreenAdapter = new FullscreenAdapter(cursor, getFragmentManager());
         final ViewPager viewPager = (ViewPager)getView().findViewById(R.id.pager);
-//        viewPager.setOffscreenPageLimit(1);
+        viewPager.setOffscreenPageLimit(1);
         viewPager.setAdapter(fullscreenAdapter);
         viewPager.setCurrentItem(mStartPosition);
         viewPager.setPageTransformer(true, new DepthPageTransformer());
@@ -78,7 +81,6 @@ public class FullscreenFragment extends Fragment implements LoaderManager.Loader
 
     @Override
     public void onLoaderReset(Loader<Cursor> cursorLoader) {
-        Log.d("MATS", "onLoaderReset");
         ((ViewPager)getView().findViewById(R.id.pager)).setAdapter(null);
     }
 

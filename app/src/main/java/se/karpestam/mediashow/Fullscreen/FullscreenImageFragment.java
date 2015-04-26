@@ -3,7 +3,6 @@ package se.karpestam.mediashow.Fullscreen;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -14,14 +13,13 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageView;
 
-import se.karpestam.mediashow.Media.BitmapCache;
 import se.karpestam.mediashow.Media.RequestJob;
 import se.karpestam.mediashow.Media.BitmapRequester;
 import se.karpestam.mediashow.Media.RequestListener;
 import se.karpestam.mediashow.Media.RequestResult;
 import se.karpestam.mediashow.R;
 
-public class FullscreenPageFragment extends Fragment implements RequestListener {
+public class FullscreenImageFragment extends Fragment implements RequestListener {
 
     private final String mListenerId = toString();
 
@@ -32,7 +30,7 @@ public class FullscreenPageFragment extends Fragment implements RequestListener 
                              Bundle savedInstanceState) {
         mBitmapRequester = BitmapRequester.getInstance(getActivity().getApplicationContext());
         mBitmapRequester.addListener(mListenerId, this);
-        return inflater.inflate(R.layout.fullscreen_page_fragment, container, false);
+        return inflater.inflate(R.layout.fullscreen_image_fragment, container, false);
     }
 
     @Override
@@ -40,9 +38,9 @@ public class FullscreenPageFragment extends Fragment implements RequestListener 
         super.onViewCreated(view, savedInstanceState);
         /* Get values. */
         Bundle bundle = getArguments();
-        final String data = bundle.getString(MediaStore.MediaColumns.DATA);
+        final String data = bundle.getString(MediaStore.Files.FileColumns.DATA);
         final int orientation = bundle.getInt(MediaStore.Images.ImageColumns.ORIENTATION);
-
+        final int mediaType = bundle.getInt(MediaStore.Files.FileColumns.MEDIA_TYPE);
         WindowManager windowManager = (WindowManager) getActivity()
                 .getSystemService(Context.WINDOW_SERVICE);
         Point point = new Point();
@@ -50,7 +48,7 @@ public class FullscreenPageFragment extends Fragment implements RequestListener 
         ImageView imageView = (ImageView) view.findViewById(R.id.fullscreen_image);
         imageView.setTag(data);
         Bitmap bitmap = mBitmapRequester.requestBitmap(new RequestJob(data, orientation, imageView, mListenerId, true, point.x,
-                point.y));
+                point.y, mediaType));
         imageView.setImageBitmap(bitmap);
     }
 

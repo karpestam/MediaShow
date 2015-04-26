@@ -14,9 +14,9 @@ public class RequestJob {
     public boolean mHighQuality;
     public int mWidth;
     public int mHeight;
-
+    public int mMediaType;
     public RequestJob(String path, int orientation, ImageView imageView, String listenerId,
-                      boolean highQuality, int width, int height) {
+                      boolean highQuality, int width, int height, int mediaType) {
         mPath = path;
         mImageView = imageView;
         mOrientation = orientation;
@@ -24,5 +24,6 @@ public class RequestJob {
         mHighQuality = highQuality;
         mWidth = width;
         mHeight = height;
+        mMediaType = mediaType;
     }
 }
