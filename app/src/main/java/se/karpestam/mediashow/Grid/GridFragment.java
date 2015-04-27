@@ -115,8 +115,13 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
                 switch (menuItem.getItemId()) {
                     case R.id.action_share:
                         Log.d(Constants.LOG_TAG, "Share="+gridView.getCheckedItemPositions());
-//                        SparseBooleanArray items = gridView.getCheckedItemPositions();
-//                        items.
+                        SparseBooleanArray items = gridView.getCheckedItemPositions();
+                        for (int i = 0; i < items.size(); i++) {
+                            if (items.valueAt(i)) {
+                                Cursor cursor = (Cursor)gridAdapter.getItem(i);
+                                Log.d("MATS", "selected path="+cursor.getString(cursor.getColumnIndex(MediaStore.Files.FileColumns.DATA)));
+                            }
+                        }
                         return true;
                     case R.id.action_delete:
                         return true;
