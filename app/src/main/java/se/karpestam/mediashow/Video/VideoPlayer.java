@@ -1,12 +1,15 @@
 package se.karpestam.mediashow.Video;
 
+import android.graphics.SurfaceTexture;
 import android.media.MediaPlayer;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.TextureView;
+import android.view.TextureView.SurfaceTextureListener;
 
 import java.io.IOException;
 
@@ -15,7 +18,8 @@ import se.karpestam.mediashow.Constants;
 /**
  * Created by 23055395 on 2015-04-24.
  */
-public class VideoPlayer implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener, SurfaceHolder.Callback {
+public class VideoPlayer implements MediaPlayer.OnPreparedListener, MediaPlayer
+        .OnCompletionListener, MediaPlayer.OnErrorListener, SurfaceTextureListener {
 
     private VideoListener mListener;
     private float mVolume = 0f;
@@ -56,16 +60,14 @@ public class VideoPlayer implements MediaPlayer.OnPreparedListener, MediaPlayer.
         PLAYBACK_COMPLETED
     }
 
-    public VideoPlayer(TextureView textureView, VideoListener videoListener, int width, int height) {
+    public VideoPlayer(TextureView textureView, VideoListener videoListener, int width,
+            int height) {
         mMediaPlayer = new MediaPlayer();
         mMediaPlayer.setOnPreparedListener(this);
         mMediaPlayer.setOnCompletionListener(this);
         mMediaPlayer.setVolume(mVolume, mVolume);
         mListener = videoListener;
-        mMediaPlayer.setSurface(textureView);
-        SurfaceHolder holder = textureView.get
-        holder.setFixedSize(width, height);
-        holder.addCallback(this);
+        textureView.setSurfaceTextureListener(this);
     }
 
     @Override
@@ -90,20 +92,41 @@ public class VideoPlayer implements MediaPlayer.OnPreparedListener, MediaPlayer.
     }
 
     @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-        Log.d(Constants.LOG_TAG, VideoPlayer.class.getSimpleName() + " surfaceChanged() width=" + width + " height=" + height);
+    public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int i, int i1) {
+        mMediaPlayer.setSurface(new Surface(surfaceTexture));
     }
 
     @Override
-    public void surfaceCreated(SurfaceHolder holder) {
-        Log.d(Constants.LOG_TAG, VideoPlayer.class.getSimpleName() + " surfaceCreated()");
-        mMediaPlayer.setDisplay(holder);
+    public void onSurfaceTextureSizeChanged(SurfaceTexture surfaceTexture, int i, int i1) {
+
     }
 
     @Override
-    public void surfaceDestroyed(SurfaceHolder holder) {
-        Log.d(Constants.LOG_TAG, VideoPlayer.class.getSimpleName() + " surfaceDestroyed()");
+    public void onSurfaceTextureUpdated(SurfaceTexture surfaceTexture) {
+
     }
+
+    @Override
+    public boolean onSurfaceTextureDestroyed(SurfaceTexture surfaceTexture) {
+        return false;
+    }
+
+    //    @Override
+//    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+//        Log.d(Constants.LOG_TAG, VideoPlayer.class.getSimpleName() + " surfaceChanged()
+// width=" + width + " height=" + height);
+//    }
+//
+//    @Override
+//    public void surfaceCreated(SurfaceHolder holder) {
+//        Log.d(Constants.LOG_TAG, VideoPlayer.class.getSimpleName() + " surfaceCreated()");
+//        mMediaPlayer.setDisplay(holder);
+//    }
+//
+//    @Override
+//    public void surfaceDestroyed(SurfaceHolder holder) {
+//        Log.d(Constants.LOG_TAG, VideoPlayer.class.getSimpleName() + " surfaceDestroyed()");
+//    }
 
     public void setDataSource(String data) {
         mCurrentDataSource = data;
@@ -115,7 +138,8 @@ public class VideoPlayer implements MediaPlayer.OnPreparedListener, MediaPlayer.
                 mPlayerState = PlayerState.INITIALIZED;
                 mListener.onInitialized();
             } catch (IOException e) {
-                Log.e(Constants.LOG_TAG, VideoPlayer.class.getSimpleName() + " setDataSource() " + e.getMessage());
+                Log.e(Constants.LOG_TAG,
+                        VideoPlayer.class.getSimpleName() + " setDataSource() " + e.getMessage());
             }
         }
     }

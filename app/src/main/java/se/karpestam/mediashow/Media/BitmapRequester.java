@@ -25,7 +25,6 @@ public class BitmapRequester {
     private ThreadPoolExecutor mExecutor;
     private BitmapCache mBitmapCache;
     private BitmapDiskCache mBitmapDiskCache;
-    private Context mContext;
     /**
      * Handles all listener callbacks and puts the decoded Bitmap to the cache.
      */
@@ -34,7 +33,7 @@ public class BitmapRequester {
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
 
-            RequestResult requestResult = (RequestResult) msg.obj;
+            RequestResult requestResult = (RequestResult)msg.obj;
             if (requestResult.mIsResultOk && msg.arg1 != 1) {
                 mBitmapCache.put(requestResult.mPath, requestResult.mBitmap);
             }
@@ -46,7 +45,6 @@ public class BitmapRequester {
     };
 
     private BitmapRequester(Context context) {
-        mContext = context;
         mBitmapCache = new BitmapCache();
         mBitmapDiskCache = new BitmapDiskCache(context);
         /* Create thread pool that executes Runnable. Execution order is LIFO(last in first out)
@@ -103,11 +101,18 @@ public class BitmapRequester {
                         bitmap = mBitmapDiskCache.get(requestJob.mPath);
                     }
                     if (bitmap == null) {
-                        if (requestJob.mMediaType == MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE) {
-                            bitmap = BitmapHelper.resize(requestJob.mPath, requestJob.mWidth, requestJob.mHeight, requestJob.mOrientation, (requestJob.mHighQuality ? Config.ARGB_8888 : Config.RGB_565));
+                        if (requestJob.mMediaType == MediaStore.Files.FileColumns
+                                .MEDIA_TYPE_IMAGE) {
+                            bitmap = BitmapHelper.resize(requestJob.mPath, requestJob.mWidth,
+                                    requestJob.mHeight, requestJob.mOrientation,
+                                    (requestJob.mHighQuality ? Config.ARGB_8888 : Config.RGB_565));
                         } else {
-                            bitmap = ThumbnailUtils.createVideoThumbnail(requestJob.mPath, requestJob.mHighQuality ? MediaStore.Video.Thumbnails.FULL_SCREEN_KIND : MediaStore.Video.Thumbnails.MINI_KIND);
-                            Log.d("MATS", "bitmap " + bitmap.getWidth() + " " + bitmap.getHeight());
+                            bitmap = ThumbnailUtils.createVideoThumbnail(requestJob.mPath,
+                                    requestJob.mHighQuality ? MediaStore.Video.Thumbnails
+                                            .FULL_SCREEN_KIND : MediaStore.Video.Thumbnails
+                                            .MINI_KIND);
+                            Log.d("MATS",
+                                    "bitmap " + bitmap.getWidth() + " " + bitmap.getHeight());
                         }
                         if (!requestJob.mHighQuality) {
                             mBitmapDiskCache.add(requestJob.mPath, bitmap);

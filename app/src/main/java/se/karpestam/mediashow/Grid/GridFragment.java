@@ -4,8 +4,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Point;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -19,10 +17,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.AbsListView;
+import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AdapterView;
 import android.widget.CursorAdapter;
 import android.widget.GridView;
+import android.widget.ImageView;
 
 import se.karpestam.mediashow.Constants;
 import se.karpestam.mediashow.Fullscreen.FullscreenFragment;
@@ -39,7 +38,7 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+            Bundle savedInstanceState) {
         Log.d(Constants.LOG_TAG, GridFragment.class.getSimpleName() + " onCreateView() " +
                 "savedInstanceState=" + savedInstanceState);
         mContext = getActivity().getApplicationContext();
@@ -52,7 +51,7 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mWindowManager = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
+        mWindowManager = (WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE);
     }
 
     @Override
@@ -64,7 +63,7 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public void onPause() {
         super.onPause();
-        mGridStartPosition = ((GridView) getView().findViewById(R.id.grid_view))
+        mGridStartPosition = ((GridView)getView().findViewById(R.id.grid_view))
                 .getFirstVisiblePosition();
         getLoaderManager().destroyLoader(0);
     }
@@ -72,9 +71,10 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return new CursorLoader(mContext, MediaStore.Files.getContentUri("external"), null,
-                MediaStore.Files.FileColumns.MEDIA_TYPE + " = ? OR " + MediaStore.Files.FileColumns.MEDIA_TYPE + " = ?", new
-                String[]{String.valueOf(MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE),
-                String.valueOf(MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO)},
+                MediaStore.Files.FileColumns.MEDIA_TYPE + " = ? OR " + MediaStore.Files
+                        .FileColumns.MEDIA_TYPE + " = ?",
+                new String[]{String.valueOf(MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE), String
+                        .valueOf(MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO)},
                 MediaStore.Images.ImageColumns.DATE_TAKEN + " DESC");
 
     }
@@ -82,14 +82,42 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public void onLoadFinished(Loader<Cursor> loader, final Cursor cursor) {
         int numColumns = mContext.getResources().getInteger(R.integer.grid_columns);
-        Point point = new Point();
+        final Point point = new Point();
         mWindowManager.getDefaultDisplay().getSize(point);
-        final GridView gridView = (GridView) getView().findViewById(R.id.grid_view);
+        final GridView gridView = (GridView)getView().findViewById(R.id.grid_view);
         int spacing = gridView.getHorizontalSpacing();
-        CursorAdapter mediaGridAdapter = new GridAdapter(mContext, cursor, false, point.x,
+        final CursorAdapter gridAdapter = new GridAdapter(mContext, cursor, false, point.x,
                 numColumns, spacing);
-        gridView.setAdapter(mediaGridAdapter);
+        gridView.setAdapter(gridAdapter);
         gridView.setSelection(mGridStartPosition);
+        gridView.setMultiChoiceModeListener(new MultiChoiceModeListener() {
+            @Override
+            public void onItemCheckedStateChanged(ActionMode actionMode, int position, long id,
+                    boolean checked) {
+                actionMode.setTitle("" + gridView.getCheckedItemCount());
+            }
+
+            @Override
+            public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
+                actionMode.getMenuInflater().inflate(R.menu.menu_actions, menu);
+                return true;
+            }
+
+            @Override
+            public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
+                return false;
+            }
+
+            @Override
+            public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
+                return false;
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode actionMode) {
+
+            }
+        });
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -100,35 +128,6 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
                 getFragmentManager().beginTransaction()
                         .replace(R.id.main_view, fragment, FullscreenFragment.FRAGMENT_TAG)
                         .addToBackStack(FullscreenFragment.FRAGMENT_TAG).commit();
-            }
-        });
-        gridView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position,
-                                           long id) {
-                getActivity().startActionMode(new ActionMode.Callback() {
-                    @Override
-                    public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-                        return false;
-                    }
-
-                    @Override
-                    public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-                        return false;
-                    }
-
-                    @Override
-                    public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-                        return false;
-                    }
-
-                    @Override
-                    public void onDestroyActionMode(ActionMode mode) {
-
-                    }
-                });
-                view.setSelected(view.isSelected());
-                return true;
             }
         });
     }
@@ -148,7 +147,7 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
         super.onViewStateRestored(savedInstanceState);
 
         if (savedInstanceState != null) {
-            ((GridView) getView().findViewById(R.id.grid_view))
+            ((GridView)getView().findViewById(R.id.grid_view))
                     .setSelection(savedInstanceState.getInt(GRID_POSITION));
         }
     }
@@ -157,9 +156,9 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
     public void onDetach() {
         super.onDetach();
         if (getView() != null) {
-            GridView gridView = (GridView) getView().findViewById(R.id.grid_view);
+            GridView gridView = (GridView)getView().findViewById(R.id.grid_view);
             if (gridView != null && gridView.getAdapter() != null) {
-                ((GridAdapter) gridView.getAdapter()).destroy();
+                ((GridAdapter)gridView.getAdapter()).destroy();
             }
         }
 

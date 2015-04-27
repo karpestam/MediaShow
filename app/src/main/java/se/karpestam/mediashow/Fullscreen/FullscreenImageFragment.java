@@ -23,13 +23,11 @@ public class FullscreenImageFragment extends Fragment implements RequestListener
 
     private final String mListenerId = toString();
 
-    private BitmapRequester mBitmapRequester;
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        mBitmapRequester = BitmapRequester.getInstance(getActivity().getApplicationContext());
-        mBitmapRequester.addListener(mListenerId, this);
+            Bundle savedInstanceState) {
+        BitmapRequester.getInstance(getActivity().getApplicationContext())
+                .addListener(mListenerId, this);
         return inflater.inflate(R.layout.fullscreen_image_fragment, container, false);
     }
 
@@ -41,20 +39,22 @@ public class FullscreenImageFragment extends Fragment implements RequestListener
         final String data = bundle.getString(MediaStore.Files.FileColumns.DATA);
         final int orientation = bundle.getInt(MediaStore.Images.ImageColumns.ORIENTATION);
         final int mediaType = bundle.getInt(MediaStore.Files.FileColumns.MEDIA_TYPE);
-        WindowManager windowManager = (WindowManager) getActivity()
+        WindowManager windowManager = (WindowManager)getActivity()
                 .getSystemService(Context.WINDOW_SERVICE);
         Point point = new Point();
         windowManager.getDefaultDisplay().getSize(point);
-        ImageView imageView = (ImageView) view.findViewById(R.id.fullscreen_image);
+        ImageView imageView = (ImageView)view.findViewById(R.id.fullscreen_image);
         imageView.setTag(data);
-        Bitmap bitmap = mBitmapRequester.requestBitmap(new RequestJob(data, orientation, imageView, mListenerId, true, point.x,
-                point.y, mediaType));
+        Bitmap bitmap = BitmapRequester.getInstance(getActivity().getApplicationContext())
+                .requestBitmap(
+                        new RequestJob(data, orientation, imageView, mListenerId, true, point.x,
+                                point.y, mediaType));
         imageView.setImageBitmap(bitmap);
     }
 
     @Override
     public void onRequestResult(RequestResult requestResult) {
-        String tag = (String) requestResult.mImageView.getTag();
+        String tag = (String)requestResult.mImageView.getTag();
         if (tag.equals(requestResult.mPath) && requestResult.mListenerId.equals(mListenerId)) {
             if (requestResult.mIsResultOk) {
                 requestResult.mImageView.setImageBitmap(requestResult.mBitmap);
@@ -67,6 +67,7 @@ public class FullscreenImageFragment extends Fragment implements RequestListener
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        mBitmapRequester.removeListener(mListenerId);
+        BitmapRequester.getInstance(getActivity().getApplicationContext())
+                .removeListener(mListenerId);
     }
 }

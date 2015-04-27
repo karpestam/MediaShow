@@ -16,7 +16,6 @@ public class MainActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(Constants.LOG_TAG, MainActivity.class.getSimpleName() + " onCreate() " +
                 "savedInstanceState=" + savedInstanceState);
-        getActionBar().hide();
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.main_activity);
