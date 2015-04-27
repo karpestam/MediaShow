@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
-import android.graphics.SurfaceTexture;
 import android.media.MediaMetadataRetriever;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -12,17 +11,13 @@ import android.provider.MediaStore.Images.ImageColumns;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Surface;
-import android.view.SurfaceView;
 import android.view.TextureView;
-import android.view.TextureView.SurfaceTextureListener;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 
 import se.karpestam.mediashow.Constants;
@@ -61,7 +56,7 @@ public class FullscreenVideoFragment extends Fragment implements RequestListener
                 .getSystemService(Context.WINDOW_SERVICE);
         Point point = new Point();
         windowManager.getDefaultDisplay().getSize(point);
-        View view = inflater.inflate(R.layout.fullscreen_video_fragment, container, false);
+        View view = inflater.inflate(R.layout.fullscreen_video_layout, container, false);
         /* Get values. */
         Bundle bundle = getArguments();
         final String data = bundle.getString(MediaStore.Files.FileColumns.DATA);

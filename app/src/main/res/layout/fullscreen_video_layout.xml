@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <FrameLayout
         android:id="@+id/video_container"
@@ -9,20 +9,18 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-
-
         <ImageView
             android:id="@+id/fullscreen_image"
             android:layout_gravity="center"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent" />
 
         <TextureView
             android:id="@+id/fullscreen_video"
             android:layout_gravity="center"
             android:alpha="0"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent" />
     </FrameLayout>
 
     <LinearLayout
@@ -38,21 +36,21 @@
             android:src="@android:drawable/ic_media_pause"
             android:layout_width="wrap_content"
             android:layout_weight="0"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content" />
 
         <SeekBar
             android:id="@+id/seek_bar"
             android:layout_weight="2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"/>
+            android:layout_gravity="center" />
 
         <ImageButton
             android:id="@+id/sound_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0"
-            android:src="@android:drawable/ic_lock_silent_mode"/>
+            android:src="@android:drawable/ic_lock_silent_mode" />
     </LinearLayout>
 
 </RelativeLayout>

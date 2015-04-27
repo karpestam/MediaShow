@@ -28,7 +28,7 @@ public class FullscreenImageFragment extends Fragment implements RequestListener
             Bundle savedInstanceState) {
         BitmapRequester.getInstance(getActivity().getApplicationContext())
                 .addListener(mListenerId, this);
-        return inflater.inflate(R.layout.fullscreen_image_fragment, container, false);
+        return inflater.inflate(R.layout.fullscreen_image_layout, container, false);
     }
 
     @Override
