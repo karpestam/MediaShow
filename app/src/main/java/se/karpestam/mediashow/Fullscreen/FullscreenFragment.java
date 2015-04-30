@@ -2,7 +2,9 @@ package se.karpestam.mediashow.Fullscreen;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
@@ -12,6 +14,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -61,9 +64,10 @@ public class FullscreenFragment extends Fragment implements LoaderManager.Loader
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         return new CursorLoader(mContext, MediaStore.Files.getContentUri("external"), null,
-                MediaStore.Files.FileColumns.MEDIA_TYPE + " = ? OR " + MediaStore.Files.FileColumns.MEDIA_TYPE + " = ?", new
-                String[]{String.valueOf(MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE),
-                String.valueOf(MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO)},
+                MediaStore.Files.FileColumns.MEDIA_TYPE + " = ? OR " + MediaStore.Files
+                        .FileColumns.MEDIA_TYPE + " = ?",
+                new String[]{String.valueOf(MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE), String
+                        .valueOf(MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO)},
                 MediaStore.Images.ImageColumns.DATE_TAKEN + " DESC");
     }
 

@@ -142,7 +142,7 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
                 bundle.putInt("START_POSITION", position);
                 fragment.setArguments(bundle);
                 getFragmentManager().beginTransaction()
-                        .replace(R.id.main_view, fragment, FullscreenFragment.FRAGMENT_TAG)
+                        .replace(R.id.fragment, fragment, FullscreenFragment.FRAGMENT_TAG)
                         .addToBackStack(FullscreenFragment.FRAGMENT_TAG).commit();
             }
         });

@@ -6,6 +6,8 @@ import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.Surface;
+import android.widget.Toolbar;
 
 import se.karpestam.mediashow.Grid.GridFragment;
 
@@ -17,11 +19,10 @@ public class MainActivity extends FragmentActivity {
         Log.d(Constants.LOG_TAG, MainActivity.class.getSimpleName() + " onCreate() " +
                 "savedInstanceState=" + savedInstanceState);
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.main_activity);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.main_view, new GridFragment(), GridFragment.FRAGMENT_TAG)
+                    .replace(R.id.fragment, new GridFragment(), GridFragment.FRAGMENT_TAG)
                     .commit();
         }
     }

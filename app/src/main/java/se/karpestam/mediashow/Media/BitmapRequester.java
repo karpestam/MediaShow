@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 public class BitmapRequester {
     /* This instance, single-ton. */
     private static BitmapRequester mBitmapRequester;
-    private static final int NUMBER_OF_WORKER_THREADS = 3;
+    private static final int NUMBER_OF_WORKER_THREADS = 1;
     private Map<String, RequestListener> mListeners;
     private ThreadPoolExecutor mExecutor;
     private BitmapCache mBitmapCache;

@@ -6,10 +6,8 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckedTextView;
 import android.widget.CursorAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -37,7 +35,7 @@ public class GridAdapter extends CursorAdapter implements RequestListener {
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
-        View gridItem = parent.inflate(context, R.layout.grid_layout_item, null);
+        View gridItem = parent.inflate(context, R.layout.grid_item, null);
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(mGridItemSize,
                 mGridItemSize);
         gridItem.setLayoutParams(params);
