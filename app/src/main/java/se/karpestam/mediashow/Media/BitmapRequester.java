@@ -7,7 +7,6 @@ import android.media.ThumbnailUtils;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
-import android.util.Log;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -20,8 +19,8 @@ import java.util.concurrent.TimeUnit;
 public class BitmapRequester {
     /* This instance, single-ton. */
     private static BitmapRequester mBitmapRequester;
-    private static final int NUMBER_OF_WORKER_THREADS = 1;
-    private Map<String, RequestListener> mListeners;
+    private static final int NUMBER_OF_WORKER_THREADS = 2;
+    private Map<String, BitmapResultListener> mListeners;
     private ThreadPoolExecutor mExecutor;
     private BitmapCache mBitmapCache;
     private BitmapDiskCache mBitmapDiskCache;
@@ -33,13 +32,13 @@ public class BitmapRequester {
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
 
-            RequestResult requestResult = (RequestResult)msg.obj;
-            if (requestResult.mIsResultOk && msg.arg1 != 1) {
-                mBitmapCache.put(requestResult.mPath, requestResult.mBitmap);
+            BitmapResult bitmapResult = (BitmapResult)msg.obj;
+            if (bitmapResult.mBitmap != null) {
+                mBitmapCache.put(bitmapResult.mPath, bitmapResult.mBitmap);
             }
-            Collection<RequestListener> listeners = mListeners.values();
-            for (RequestListener listener : listeners) {
-                listener.onRequestResult(requestResult);
+            Collection<BitmapResultListener> listeners = mListeners.values();
+            for (BitmapResultListener listener : listeners) {
+                listener.onRequestResult(bitmapResult);
             }
         }
     };
@@ -63,7 +62,7 @@ public class BitmapRequester {
             @Override
             public Thread newThread(Runnable r) {
                 Thread thread = new Thread(r);
-                thread.setPriority(Thread.MIN_PRIORITY);
+                thread.setPriority(Thread.NORM_PRIORITY);
                 return thread;
             }
         });
@@ -82,52 +81,53 @@ public class BitmapRequester {
         return mBitmapRequester;
     }
 
-    public void addListener(String id, RequestListener requestListener) {
-        mListeners.put(id, requestListener);
+    public void addListener(String id, BitmapResultListener bitmapResultListener) {
+        mListeners.put(id, bitmapResultListener);
     }
 
     public void removeListener(String id) {
         mListeners.remove(id);
     }
 
-    public Bitmap requestBitmap(final RequestJob requestJob) {
-        Bitmap bitmap = mBitmapCache.get(requestJob.mPath);
-        if (bitmap == null || requestJob.mHighQuality) {
-            Runnable runnable = new Runnable() {
-                @Override
-                public void run() {
-                    Bitmap bitmap = null;
-                    if (!requestJob.mHighQuality) {
-                        bitmap = mBitmapDiskCache.get(requestJob.mPath);
-                    }
-                    if (bitmap == null) {
-                        if (requestJob.mMediaType == MediaStore.Files.FileColumns
-                                .MEDIA_TYPE_IMAGE) {
-                            bitmap = BitmapHelper.resize(requestJob.mPath, requestJob.mWidth,
-                                    requestJob.mHeight, requestJob.mOrientation,
-                                    (requestJob.mHighQuality ? Config.ARGB_8888 : Config.RGB_565));
-                        } else {
-                            bitmap = ThumbnailUtils.createVideoThumbnail(requestJob.mPath,
-                                    requestJob.mHighQuality ? MediaStore.Video.Thumbnails
-                                            .FULL_SCREEN_KIND : MediaStore.Video.Thumbnails
-                                            .MINI_KIND);
-                            Log.d("MATS",
-                                    "bitmap " + bitmap.getWidth() + " " + bitmap.getHeight());
-                        }
-                        if (!requestJob.mHighQuality) {
-                            mBitmapDiskCache.add(requestJob.mPath, bitmap);
-                        }
-                    }
-                    Message message = mMainHandler.obtainMessage();
-                    message.obj = new RequestResult(requestJob.mPath, bitmap,
-                            requestJob.mImageView, requestJob.mListenerId,
-                            bitmap != null ? true : false);
-                    message.arg1 = requestJob.mHighQuality ? 1 : 0;
-                    mMainHandler.sendMessage(message);
-                }
-            };
-            mExecutor.execute(runnable);
+    public Bitmap requestBitmap(final BitmapRequest bitmapRequest) {
+        Bitmap bitmap = mBitmapCache.get(bitmapRequest.mPath);
+        if (bitmap == null || bitmapRequest.mHighQuality) {
+            mExecutor.execute(requestRunnable(bitmapRequest));
         }
         return bitmap;
     }
+
+    private Runnable requestRunnable(final BitmapRequest bitmapRequest) {
+        return new Runnable() {
+            @Override
+            public void run() {
+                Bitmap bitmap = null;
+                if (!bitmapRequest.mHighQuality) {
+                    bitmap = mBitmapDiskCache.get(bitmapRequest.mPath);
+                }
+                if (bitmap == null) {
+                    if (bitmapRequest.mMediaType == MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE) {
+                        bitmap = BitmapHelper
+                                .resize(bitmapRequest.mPath, bitmapRequest.mWidth, bitmapRequest.mHeight,
+                                        bitmapRequest.mOrientation,
+                                        (bitmapRequest.mHighQuality ? Config.ARGB_8888 : Config
+                                                .RGB_565));
+                    } else {
+                        bitmap = ThumbnailUtils.createVideoThumbnail(bitmapRequest.mPath,
+                                bitmapRequest.mHighQuality ? MediaStore.Video.Thumbnails
+                                        .FULL_SCREEN_KIND : MediaStore.Video.Thumbnails.MINI_KIND);
+                    }
+                    if (!bitmapRequest.mHighQuality) {
+                        mBitmapDiskCache.add(bitmapRequest.mPath, bitmap);
+                    }
+                }
+                Message message = mMainHandler.obtainMessage();
+                message.obj = new BitmapResult(bitmapRequest.mPath, bitmap, bitmapRequest.mImageView,
+                        bitmapRequest.mListenerId);
+                message.arg1 = bitmapRequest.mHighQuality ? 1 : 0;
+                mMainHandler.sendMessage(message);
+            }
+        };
+    }
+
 }

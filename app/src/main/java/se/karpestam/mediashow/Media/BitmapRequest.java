@@ -1,12 +1,8 @@
 package se.karpestam.mediashow.Media;
 
-import android.graphics.Bitmap;
 import android.widget.ImageView;
 
-/**
- * Created by Mats on 2015-04-16.
- */
-public class RequestJob {
+public class BitmapRequest {
     public String mPath;
     public int mOrientation;
     public ImageView mImageView;
@@ -15,8 +11,9 @@ public class RequestJob {
     public int mWidth;
     public int mHeight;
     public int mMediaType;
-    public RequestJob(String path, int orientation, ImageView imageView, String listenerId,
-                      boolean highQuality, int width, int height, int mediaType) {
+
+    public BitmapRequest(String path, int orientation, ImageView imageView, String listenerId,
+            boolean highQuality, int width, int height, int mediaType) {
         mPath = path;
         mImageView = imageView;
         mOrientation = orientation;

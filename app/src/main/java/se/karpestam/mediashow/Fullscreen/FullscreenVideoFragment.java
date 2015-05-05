@@ -2,7 +2,6 @@ package se.karpestam.mediashow.Fullscreen;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.graphics.Point;
 import android.media.MediaMetadataRetriever;
 import android.os.Bundle;
@@ -22,13 +21,13 @@ import android.widget.SeekBar;
 
 import se.karpestam.mediashow.Constants;
 import se.karpestam.mediashow.Media.BitmapRequester;
-import se.karpestam.mediashow.Media.RequestJob;
-import se.karpestam.mediashow.Media.RequestListener;
-import se.karpestam.mediashow.Media.RequestResult;
+import se.karpestam.mediashow.Media.BitmapRequest;
+import se.karpestam.mediashow.Media.BitmapResultListener;
+import se.karpestam.mediashow.Media.BitmapResult;
 import se.karpestam.mediashow.R;
 import se.karpestam.mediashow.Video.VideoPlayer;
 
-public class FullscreenVideoFragment extends Fragment implements RequestListener, VideoPlayer
+public class FullscreenVideoFragment extends Fragment implements BitmapResultListener, VideoPlayer
         .VideoListener {
 
     private final String mListenerId = toString();
@@ -45,18 +44,16 @@ public class FullscreenVideoFragment extends Fragment implements RequestListener
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        BitmapRequester.getInstance(getActivity().getApplicationContext())
-                .addListener(mListenerId, this);
-//        getActivity().getWindow().getDecorView().setSystemUiVisibility(View
-// .SYSTEM_UI_FLAG_HIDE_NAVIGATION
-//                | View.SYSTEM_UI_FLAG_FULLSCREEN);
         Log.d(Constants.LOG_TAG, FullscreenVideoFragment.class
                 .getSimpleName() + " onCreateView() " + savedInstanceState);
+
+        BitmapRequester.getInstance(getActivity().getApplicationContext())
+                .addListener(mListenerId, this);
         WindowManager windowManager = (WindowManager)getActivity()
                 .getSystemService(Context.WINDOW_SERVICE);
         Point point = new Point();
         windowManager.getDefaultDisplay().getSize(point);
-        View view = inflater.inflate(R.layout.fullscreen_video_layout, container, false);
+        View view = inflater.inflate(R.layout.fullscreen_video_item, container, false);
         /* Get values. */
         Bundle bundle = getArguments();
         final String data = bundle.getString(MediaStore.Files.FileColumns.DATA);
@@ -79,7 +76,7 @@ public class FullscreenVideoFragment extends Fragment implements RequestListener
         imageView.setTag(data);
         Bitmap bitmap = BitmapRequester.getInstance(getActivity().getApplicationContext())
                 .requestBitmap(
-                        new RequestJob(data, orientation, imageView, mListenerId, true, width,
+                        new BitmapRequest(data, orientation, imageView, mListenerId, true, width,
                                 height, mediaType));
         imageView.setImageBitmap(bitmap);
         return view;
@@ -92,17 +89,12 @@ public class FullscreenVideoFragment extends Fragment implements RequestListener
     }
 
     @Override
-    public void onRequestResult(RequestResult requestResult) {
+    public void onRequestResult(BitmapResult bitmapResult) {
         Log.d(Constants.LOG_TAG, FullscreenVideoFragment.class
-                .getSimpleName() + " onRequestResult() " + requestResult);
-        String tag = (String)requestResult.mImageView.getTag();
-        if (tag.equals(requestResult.mPath) && requestResult.mListenerId.equals(mListenerId)) {
-            if (requestResult.mIsResultOk) {
-                requestResult.mImageView.setImageBitmap(requestResult.mBitmap);
-
-            } else {
-                requestResult.mImageView.setBackgroundColor(Color.RED);
-            }
+                .getSimpleName() + " onRequestResult() " + bitmapResult);
+        String tag = (String)bitmapResult.mImageView.getTag();
+        if (tag.equals(bitmapResult.mPath) && bitmapResult.mListenerId.equals(mListenerId)) {
+            bitmapResult.mImageView.setImageBitmap(bitmapResult.mBitmap);
         }
     }
 

@@ -13,7 +13,8 @@ class BitmapHelper {
         /* Prevent instantiation. */
     }
 
-    public static Bitmap resize(String sourcePath, int width, int height, int orientation, Bitmap.Config config) {
+    public static Bitmap resize(String sourcePath, int width, int height, int orientation,
+            Bitmap.Config config) {
         final BitmapFactory.Options options = new BitmapFactory.Options();
         /* First decode with inJustDecodeBounds=true to check dimensions. */
         options.inJustDecodeBounds = true;
@@ -31,20 +32,17 @@ class BitmapHelper {
         options.inPreferredConfig = config;
         Bitmap bitmap = BitmapFactory.decodeFile(sourcePath, options);
         if (orientation == 90 || orientation == 270) {
-            // create a matrix object
             Matrix matrix = new Matrix();
-            matrix.postRotate(orientation); // anti-clockwise by 90 degrees
-
-// create a new bitmap from the original using the matrix to transform the result
+            matrix.postRotate(orientation);
             bitmap = Bitmap
-                    .createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(),
-                            matrix, true);
+                    .createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix,
+                            true);
         }
         return bitmap;
     }
 
     private static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth,
-                                             int reqHeight) {
+            int reqHeight) {
         // Raw height and width of image
         final int height = options.outHeight;
         final int width = options.outWidth;
@@ -61,7 +59,7 @@ class BitmapHelper {
             }
         }
 
-        return inSampleSize;
+        return inSampleSize+1;
     }
 
     private static boolean isNotSameAspect(int width, int height, BitmapFactory.Options options) {
