@@ -20,10 +20,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 
+import java.lang.reflect.Constructor;
+
+import se.karpestam.mediashow.CursorLoaderQuery;
 import se.karpestam.mediashow.R;
 
 public class FullscreenFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
-
+    public static final String CURSOR_START_POSITION = "cursor_start_position";
     public static final String FRAGMENT_TAG = FullscreenFragment.class.getSimpleName();
     private Context mContext;
     private WindowManager mWindowManager;
@@ -31,11 +34,11 @@ public class FullscreenFragment extends Fragment implements LoaderManager.Loader
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+                             Bundle savedInstanceState) {
         if (savedInstanceState == null) {
-            mStartPosition = getArguments().getInt("START_POSITION");
+            mStartPosition = getArguments().getInt(CURSOR_START_POSITION);
         } else {
-            mStartPosition = savedInstanceState.getInt("START_POSITION");
+            mStartPosition = savedInstanceState.getInt(CURSOR_START_POSITION);
         }
         return inflater.inflate(R.layout.fullscreen_fragment, container, false);
     }
@@ -45,7 +48,7 @@ public class FullscreenFragment extends Fragment implements LoaderManager.Loader
         super.onActivityCreated(savedInstanceState);
 
         mContext = getActivity().getApplicationContext();
-        mWindowManager = (WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE);
+        mWindowManager = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
     }
 
     @Override
@@ -57,7 +60,7 @@ public class FullscreenFragment extends Fragment implements LoaderManager.Loader
     @Override
     public void onPause() {
         super.onPause();
-        mStartPosition = ((ViewPager)getView().findViewById(R.id.pager)).getCurrentItem();
+        mStartPosition = ((ViewPager) getView().findViewById(R.id.pager)).getCurrentItem();
         getLoaderManager().destroyLoader(0);
     }
 
@@ -76,7 +79,7 @@ public class FullscreenFragment extends Fragment implements LoaderManager.Loader
         Point point = new Point();
         mWindowManager.getDefaultDisplay().getSize(point);
         FullscreenAdapter fullscreenAdapter = new FullscreenAdapter(cursor, getFragmentManager());
-        final ViewPager viewPager = (ViewPager)getView().findViewById(R.id.pager);
+        final ViewPager viewPager = (ViewPager) getView().findViewById(R.id.pager);
         viewPager.setOffscreenPageLimit(1);
         viewPager.setAdapter(fullscreenAdapter);
         viewPager.setCurrentItem(mStartPosition);
@@ -85,12 +88,12 @@ public class FullscreenFragment extends Fragment implements LoaderManager.Loader
 
     @Override
     public void onLoaderReset(Loader<Cursor> cursorLoader) {
-        ((ViewPager)getView().findViewById(R.id.pager)).setAdapter(null);
+        ((ViewPager) getView().findViewById(R.id.pager)).setAdapter(null);
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putInt("START_POSITION", mStartPosition);
+        outState.putInt(CURSOR_START_POSITION, mStartPosition);
         super.onSaveInstanceState(outState);
     }
 

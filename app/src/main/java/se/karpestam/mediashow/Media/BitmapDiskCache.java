@@ -12,6 +12,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import se.karpestam.mediashow.Constants;
+
 class BitmapDiskCache {
     private static final int DISK_CACHE_SIZE = 200 * 1024 * 1024;
     private static final String CACHE_FOLDER_SUFFIX = "bitmap";
@@ -38,7 +40,7 @@ class BitmapDiskCache {
         };
         long start = System.currentTimeMillis();
         readCacheFromDisk(mCacheDir);
-        Log.d("MATS", "readCacheFromDisk took " + (System.currentTimeMillis() - start));
+        Log.d(Constants.LOG_TAG, BitmapDiskCache.class.getSimpleName() + " readCacheFromDisk took " + (System.currentTimeMillis() - start));
     }
 
     public void add(String filePath, Bitmap bitmap) {
