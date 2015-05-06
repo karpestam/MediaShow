@@ -32,8 +32,8 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> im
     private final String mListenerId = this.toString();
     private FragmentManager mFragmentManager;
 
-    public GridAdapter(Context context, int screenWidth, int numColumns,
-                       int spacing, FragmentManager fragmentManager) {
+    public GridAdapter(Context context, int screenWidth, int numColumns, int spacing,
+            FragmentManager fragmentManager) {
         super();
         mContext = context;
         mGridItemSize = (screenWidth / numColumns) - spacing;
@@ -62,6 +62,7 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> im
         viewHolder.mImageView.setTag(data);
         int orientation = mCursor
                 .getInt(mCursor.getColumnIndex(MediaStore.Images.Media.ORIENTATION));
+        Log.d("MATS", "request bitmap " + i);
         Bitmap bitmap = BitmapRequester.getInstance(mContext).requestBitmap(
                 new BitmapRequest(data, orientation, viewHolder.mImageView, mListenerId, false,
                         mGridItemSize, mGridItemSize, mediaType));
@@ -80,7 +81,7 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> im
 
     @Override
     public void onRequestResult(BitmapResult bitmapResult) {
-        String tag = (String) bitmapResult.mImageView.getTag();
+        String tag = (String)bitmapResult.mImageView.getTag();
         if (tag.equals(bitmapResult.mPath) && bitmapResult.mListenerId.equals(mListenerId)) {
             bitmapResult.mImageView.setImageBitmap(bitmapResult.mBitmap);
         }
@@ -105,7 +106,7 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> im
 
         public ViewHolder(View v) {
             super(v);
-            mImageView = (ImageView) v.findViewById(R.id.grid_image);
+            mImageView = (ImageView)v.findViewById(R.id.grid_image);
             mImageView.setOnClickListener(this);
         }
 

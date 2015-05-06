@@ -6,18 +6,32 @@ import android.net.Uri;
  * Created by Mats on 2015-05-05.
  */
 public abstract class CursorLoaderQuery {
-    Uri mUri;
-    String[] mProjection;
-    String mSelection;
-    String[] mSelectionArgs;
-    String mSortOrder;
+    private final Uri mUri;
+    private final String[] mProjection;
+    private final String mSelection;
+    private final String[] mSelectionArgs;
+    private final String mSortOrder;
 
-    public CursorLoaderQuery(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+    public CursorLoaderQuery(Uri uri, String[] projection, String selection,
+            String[] selectionArgs, String sortOrder) {
         mUri = uri;
         mProjection = projection;
         mSelection = selection;
         mSelectionArgs = selectionArgs;
         mSortOrder = sortOrder;
+    }
+
+    public static CursorLoaderQuery getCursorLoaderQuery(int number) {
+        switch (number) {
+            case 1:
+                return new PhotosAndVideosQuery();
+            case 2:
+                return new PhotosQuery();
+            case 3:
+                return new VideosQuery();
+            default:
+                return new PhotosAndVideosQuery();
+        }
     }
 
     public Uri getUri() {

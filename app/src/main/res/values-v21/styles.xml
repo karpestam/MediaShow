@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="AppThemeLight" parent="android:Theme.Material">
+    <style name="AppThemeLight" parent="android:Theme.Material.NoActionBar">
 
         <!-- enable window content transitions -->
         <!--<item name="android:colorPrimaryDark">#44FFFFFF</item>-->

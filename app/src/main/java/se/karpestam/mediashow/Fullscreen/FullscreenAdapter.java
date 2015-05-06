@@ -24,11 +24,12 @@ public class FullscreenAdapter extends FragmentStatePagerAdapter {
                 .getString(mCursor.getColumnIndex(MediaStore.Files.FileColumns.DATA));
         final int orientation = mCursor
                 .getInt(mCursor.getColumnIndex(MediaStore.Images.Media.ORIENTATION));
-        final int mediaType = mCursor.getInt(mCursor.getColumnIndex(MediaStore.Files.FileColumns.MEDIA_TYPE));
-        final int width = mCursor.getInt(mCursor.getColumnIndex(MediaStore.Video.VideoColumns.WIDTH));
-        Log.d("MATS", "width " + width
-        );
-        final int height = mCursor.getInt(mCursor.getColumnIndex(MediaStore.Video.VideoColumns.HEIGHT));
+        final int mediaType = mCursor
+                .getInt(mCursor.getColumnIndex(MediaStore.Files.FileColumns.MEDIA_TYPE));
+        final int width = mCursor
+                .getInt(mCursor.getColumnIndex(MediaStore.Video.VideoColumns.WIDTH));
+        final int height = mCursor
+                .getInt(mCursor.getColumnIndex(MediaStore.Video.VideoColumns.HEIGHT));
         Bundle bundle = new Bundle();
         bundle.putInt(MediaStore.Images.ImageColumns.ORIENTATION, orientation);
         bundle.putString(MediaStore.Files.FileColumns.DATA, data);

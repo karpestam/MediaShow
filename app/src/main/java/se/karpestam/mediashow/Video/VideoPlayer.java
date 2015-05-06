@@ -29,7 +29,7 @@ public class VideoPlayer implements MediaPlayer.OnPreparedListener, MediaPlayer
             super.handleMessage(msg);
 
             mListener.onProgress(mMediaPlayer.getCurrentPosition());
-            mProgressHandler.sendEmptyMessageDelayed(0, 300);
+            mProgressHandler.sendEmptyMessageDelayed(0, 250);
         }
     };
 
@@ -41,6 +41,10 @@ public class VideoPlayer implements MediaPlayer.OnPreparedListener, MediaPlayer
         void onInitialized();
 
         void onProgress(int progress);
+
+        void onPaused();
+
+        void onStopped();
     }
 
     private MediaPlayer mMediaPlayer;
@@ -73,10 +77,7 @@ public class VideoPlayer implements MediaPlayer.OnPreparedListener, MediaPlayer
     @Override
     public void onPrepared(MediaPlayer mp) {
         mPlayerState = PlayerState.PREPARED;
-        mMediaPlayer.start();
-        mPlayerState = PlayerState.STARTED;
-        mListener.onStarted(mMediaPlayer.getCurrentPosition(), mMediaPlayer.getDuration());
-        mProgressHandler.sendEmptyMessageDelayed(0, 500);
+        play();
     }
 
     @Override
@@ -88,6 +89,7 @@ public class VideoPlayer implements MediaPlayer.OnPreparedListener, MediaPlayer
 
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
+        mPlayerState = PlayerState.ERROR;
         return false;
     }
 
@@ -111,23 +113,6 @@ public class VideoPlayer implements MediaPlayer.OnPreparedListener, MediaPlayer
         return false;
     }
 
-    //    @Override
-//    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-//        Log.d(Constants.LOG_TAG, VideoPlayer.class.getSimpleName() + " surfaceChanged()
-// width=" + width + " height=" + height);
-//    }
-//
-//    @Override
-//    public void surfaceCreated(SurfaceHolder holder) {
-//        Log.d(Constants.LOG_TAG, VideoPlayer.class.getSimpleName() + " surfaceCreated()");
-//        mMediaPlayer.setDisplay(holder);
-//    }
-//
-//    @Override
-//    public void surfaceDestroyed(SurfaceHolder holder) {
-//        Log.d(Constants.LOG_TAG, VideoPlayer.class.getSimpleName() + " surfaceDestroyed()");
-//    }
-
     public void setDataSource(String data) {
         mCurrentDataSource = data;
         if (mPlayerState != PlayerState.IDLE) {
@@ -145,11 +130,15 @@ public class VideoPlayer implements MediaPlayer.OnPreparedListener, MediaPlayer
     }
 
     public void play() {
-        if (mPlayerState == PlayerState.INITIALIZED) {
+        if (mPlayerState == PlayerState.INITIALIZED || mPlayerState == PlayerState.STOPPED) {
             mMediaPlayer.prepareAsync();
-        } else if (mPlayerState == PlayerState.PREPARED || mPlayerState == PlayerState.PAUSED) {
+            mPlayerState = PlayerState.PREPARING;
+        } else if (mPlayerState == PlayerState.PREPARED || mPlayerState == PlayerState.PAUSED ||
+                mPlayerState == PlayerState.PLAYBACK_COMPLETED) {
             mMediaPlayer.start();
             mPlayerState = PlayerState.STARTED;
+            mListener.onStarted(mMediaPlayer.getCurrentPosition(), mMediaPlayer.getDuration());
+            mProgressHandler.sendEmptyMessageDelayed(0, 500);
         }
     }
 
@@ -161,13 +150,23 @@ public class VideoPlayer implements MediaPlayer.OnPreparedListener, MediaPlayer
         if (mPlayerState == PlayerState.STARTED) {
             mMediaPlayer.pause();
             mPlayerState = PlayerState.PAUSED;
+            mProgressHandler.removeCallbacksAndMessages(null);
+            mListener.onPaused();
         }
     }
 
     public void stop() {
-        if (mPlayerState == PlayerState.STARTED || mPlayerState == PlayerState.PAUSED) {
+        if (mPlayerState == PlayerState.STARTED || mPlayerState == PlayerState.PAUSED ||
+                mPlayerState == PlayerState.PLAYBACK_COMPLETED) {
             mMediaPlayer.stop();
+            mPlayerState = PlayerState.STOPPED;
+            mProgressHandler.removeCallbacksAndMessages(null);
+            mListener.onStopped();
         }
+    }
+
+    public void seekTo(int progress) {
+        mMediaPlayer.seekTo(progress);
     }
 
     public void setVolume(float volume) {

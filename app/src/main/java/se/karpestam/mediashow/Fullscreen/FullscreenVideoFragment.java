@@ -18,6 +18,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 
 import se.karpestam.mediashow.Constants;
 import se.karpestam.mediashow.Media.BitmapRequester;
@@ -27,18 +28,16 @@ import se.karpestam.mediashow.Media.BitmapResult;
 import se.karpestam.mediashow.R;
 import se.karpestam.mediashow.Video.VideoPlayer;
 
-public class FullscreenVideoFragment extends Fragment implements BitmapResultListener, VideoPlayer
-        .VideoListener {
+public class FullscreenVideoFragment extends Fragment implements BitmapResultListener,
+        VideoPlayer.VideoListener {
 
     private final String mListenerId = toString();
     private VideoPlayer mVideoPlayer;
-    private BitmapRequester mBitmapRequester;
     private ImageButton mPlayPauseButton;
     private ImageButton mSoundButton;
     private SeekBar mSeekBar;
     private boolean mIsVisibleToUser;
     private boolean mIsVideoInitialized;
-
     private String mData;
 
     @Override
@@ -46,6 +45,7 @@ public class FullscreenVideoFragment extends Fragment implements BitmapResultLis
             Bundle savedInstanceState) {
         Log.d(Constants.LOG_TAG, FullscreenVideoFragment.class
                 .getSimpleName() + " onCreateView() " + savedInstanceState);
+
 
         BitmapRequester.getInstance(getActivity().getApplicationContext())
                 .addListener(mListenerId, this);
@@ -106,6 +106,8 @@ public class FullscreenVideoFragment extends Fragment implements BitmapResultLis
 
         BitmapRequester.getInstance(getActivity().getApplicationContext())
                 .removeListener(mListenerId);
+
+        mVideoPlayer.release();
     }
 
     @Override
@@ -117,7 +119,7 @@ public class FullscreenVideoFragment extends Fragment implements BitmapResultLis
         if (mIsVisibleToUser) {
             startVideo();
         } else if (mVideoPlayer != null) {
-            mVideoPlayer.release();
+            mVideoPlayer.stop();
         }
     }
 
@@ -125,11 +127,22 @@ public class FullscreenVideoFragment extends Fragment implements BitmapResultLis
     public void onStarted(int progress, int duration) {
         Log.d(Constants.LOG_TAG, FullscreenVideoFragment.class
                 .getSimpleName() + " onStarted() progress=" + progress + " duration=" + duration);
+        mPlayPauseButton.setImageResource(android.R.drawable.ic_media_pause);
         mSeekBar.setMax(duration);
         mSeekBar.setProgress(progress);
         getView().findViewById(R.id.fullscreen_video).animate().setDuration(1000).alpha(1).start();
-//        getView().findViewById(R.id.fullscreen_video).setVisibility(View.VISIBLE);
         getView().findViewById(R.id.video_controls).animate().setDuration(1000).alpha(1).start();
+    }
+
+    @Override
+    public void onStopped() {
+        mSeekBar.setProgress(0);
+        mPlayPauseButton.setImageResource(android.R.drawable.ic_media_play);
+    }
+
+    @Override
+    public void onPaused() {
+        mPlayPauseButton.setImageResource(android.R.drawable.ic_media_play);
     }
 
     @Override
@@ -147,14 +160,27 @@ public class FullscreenVideoFragment extends Fragment implements BitmapResultLis
             public void onClick(View v) {
                 if (mVideoPlayer.isPlaying()) {
                     mVideoPlayer.pause();
-                    mPlayPauseButton.setImageResource(android.R.drawable.ic_media_play);
                 } else {
                     mVideoPlayer.play();
-                    mPlayPauseButton.setImageResource(android.R.drawable.ic_media_pause);
                 }
             }
         });
         mSeekBar = (SeekBar)getView().findViewById(R.id.seek_bar);
+        mSeekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                mVideoPlayer.seekTo(seekBar.getProgress());
+            }
+        });
         mSoundButton = (ImageButton)getView().findViewById(R.id.sound_button);
         mSoundButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -174,6 +200,7 @@ public class FullscreenVideoFragment extends Fragment implements BitmapResultLis
 
     @Override
     public void onProgress(int progress) {
+        if (!mSeekBar.isPressed())
         mSeekBar.setProgress(progress);
     }
 

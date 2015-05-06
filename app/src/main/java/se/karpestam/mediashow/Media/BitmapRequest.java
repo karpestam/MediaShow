@@ -1,5 +1,6 @@
 package se.karpestam.mediashow.Media;
 
+import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.widget.ImageView;
 
 public class BitmapRequest {
@@ -11,6 +12,7 @@ public class BitmapRequest {
     public int mWidth;
     public int mHeight;
     public int mMediaType;
+    public ViewHolder mViewHolder;
 
     public BitmapRequest(String path, int orientation, ImageView imageView, String listenerId,
             boolean highQuality, int width, int height, int mediaType) {
