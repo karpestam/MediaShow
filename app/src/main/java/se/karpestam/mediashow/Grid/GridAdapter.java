@@ -8,7 +8,6 @@ import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +19,6 @@ import se.karpestam.mediashow.Media.BitmapRequester;
 import se.karpestam.mediashow.Media.BitmapRequest;
 import se.karpestam.mediashow.Media.BitmapResultListener;
 import se.karpestam.mediashow.Media.BitmapResult;
-import se.karpestam.mediashow.PhotosAndVideosQuery;
 import se.karpestam.mediashow.R;
 
 public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> implements
@@ -31,10 +29,10 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> im
     private final int mGridItemSize;
     private final String mListenerId = this.toString();
     private FragmentManager mFragmentManager;
-
-    public GridAdapter(Context context, int screenWidth, int numColumns, int spacing,
-            FragmentManager fragmentManager) {
+    public GridAdapter(Cursor cursor, Context context, int screenWidth, int numColumns, int spacing,
+                       FragmentManager fragmentManager) {
         super();
+        mCursor = cursor;
         mContext = context;
         mGridItemSize = (screenWidth / numColumns) - spacing;
         BitmapRequester.getInstance(context).addListener(mListenerId, this);
@@ -62,7 +60,6 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> im
         viewHolder.mImageView.setTag(data);
         int orientation = mCursor
                 .getInt(mCursor.getColumnIndex(MediaStore.Images.Media.ORIENTATION));
-        Log.d("MATS", "request bitmap " + i);
         Bitmap bitmap = BitmapRequester.getInstance(mContext).requestBitmap(
                 new BitmapRequest(data, orientation, viewHolder.mImageView, mListenerId, false,
                         mGridItemSize, mGridItemSize, mediaType));
@@ -81,15 +78,10 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> im
 
     @Override
     public void onRequestResult(BitmapResult bitmapResult) {
-        String tag = (String)bitmapResult.mImageView.getTag();
+        String tag = (String) bitmapResult.mImageView.getTag();
         if (tag.equals(bitmapResult.mPath) && bitmapResult.mListenerId.equals(mListenerId)) {
             bitmapResult.mImageView.setImageBitmap(bitmapResult.mBitmap);
         }
-    }
-
-    public void swapCursor(Cursor cursor) {
-        mCursor = cursor;
-        notifyDataSetChanged();
     }
 
     /**
@@ -106,7 +98,7 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> im
 
         public ViewHolder(View v) {
             super(v);
-            mImageView = (ImageView)v.findViewById(R.id.grid_image);
+            mImageView = (ImageView) v.findViewById(R.id.grid_image);
             mImageView.setOnClickListener(this);
         }
 
@@ -115,7 +107,6 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> im
             Fragment fragment = new FullscreenFragment();
             Bundle bundle = new Bundle();
             bundle.putInt(FullscreenFragment.CURSOR_START_POSITION, mPosition);
-            bundle.putString("cursor", PhotosAndVideosQuery.class.getName());
             fragment.setArguments(bundle);
             mFragmentManager.beginTransaction()
                     .replace(R.id.fragment, fragment, FullscreenFragment.FRAGMENT_TAG)

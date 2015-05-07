@@ -9,3 +9,5 @@
 /.idea/scope_settings.xml
 .DS_Store
 /build
+/app/app.iml
+MediaShow.iml

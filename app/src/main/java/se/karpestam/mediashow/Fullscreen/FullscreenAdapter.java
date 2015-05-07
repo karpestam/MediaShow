@@ -37,16 +37,15 @@ public class FullscreenAdapter extends FragmentStatePagerAdapter {
         bundle.putInt(MediaStore.Video.VideoColumns.WIDTH, width);
         bundle.putInt(MediaStore.Video.VideoColumns.HEIGHT, height);
         switch (mediaType) {
-            case MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE:
-                FullscreenImageFragment fullscreenFragment = new FullscreenImageFragment();
-                fullscreenFragment.setArguments(bundle);
-                return fullscreenFragment;
             case MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO:
                 FullscreenVideoFragment videoFragment = new FullscreenVideoFragment();
                 videoFragment.setArguments(bundle);
                 return videoFragment;
+            default:
+                FullscreenImageFragment fullscreenFragment = new FullscreenImageFragment();
+                fullscreenFragment.setArguments(bundle);
+                return fullscreenFragment;
         }
-        return null;
     }
 
     @Override

@@ -35,6 +35,11 @@ public class FullscreenFragment extends Fragment implements LoaderManager.Loader
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
+        View decorView = getActivity().getWindow().getDecorView();
+        int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_FULLSCREEN;
+        decorView.setSystemUiVisibility(uiOptions);
+        getActivity().getActionBar().hide();
         mContext = getActivity().getApplicationContext();
         mCursorLoaderQuery = CursorLoaderQuery.getCursorLoaderQuery(
                 mContext.getSharedPreferences(Constants.SHARED_PREFS_FILE_NAME,

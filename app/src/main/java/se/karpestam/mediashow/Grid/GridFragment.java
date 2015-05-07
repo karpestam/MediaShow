@@ -1,6 +1,5 @@
 package se.karpestam.mediashow.Grid;
 
-import android.app.ActionBar;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -29,40 +28,19 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
 
     public static final String FRAGMENT_TAG = GridFragment.class.getSimpleName();
     private Context mContext;
-    private GridAdapter mGridAdapter;
-    private RecyclerView mGridView;
-    private CursorLoaderQuery mCursorLoaderQuery;
-    private GridLayoutManager mGridLayoutManager;
-
+    private int mStartGridPosition = 0;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+                             Bundle savedInstanceState) {
         Log.d(Constants.LOG_TAG, GridFragment.class.getSimpleName() + " onCreateView() " +
                 "savedInstanceState=" + savedInstanceState);
+        getActivity().getActionBar().show();
+        if (savedInstanceState != null) {
+            mStartGridPosition = savedInstanceState.getInt("position");
+        }
         mContext = getActivity().getApplicationContext();
-        mCursorLoaderQuery = CursorLoaderQuery.getCursorLoaderQuery(
-                mContext.getSharedPreferences(Constants.SHARED_PREFS_FILE_NAME,
-                        Context.MODE_PRIVATE).getInt(Constants.PREFS_FILTER, 0));
-        mGridView = (RecyclerView)inflater.inflate(R.layout.recyclerview, container, false);
-        mGridLayoutManager = new GridLayoutManager(mContext,
-                mContext.getResources().getInteger(R.integer.grid_columns));
-        mGridView.setLayoutManager(mGridLayoutManager);
-        mGridView.setHasFixedSize(true);
 
-        return mGridView;
-    }
-
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        Log.d(Constants.LOG_TAG, GridFragment.class.getSimpleName() + "onViewCreated()");
-        super.onViewCreated(view, savedInstanceState);
-        WindowManager windowManager = (WindowManager)mContext
-                .getSystemService(Context.WINDOW_SERVICE);
-        int numColumns = mContext.getResources().getInteger(R.integer.grid_columns);
-        final Point point = new Point();
-        windowManager.getDefaultDisplay().getSize(point);
-        mGridAdapter = new GridAdapter(mContext, point.x, numColumns, 0, getFragmentManager());
-        mGridAdapter.setHasStableIds(true);
+        return inflater.inflate(R.layout.recyclerview, container, false);
     }
 
     @Override
@@ -79,39 +57,48 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return new CursorLoader(mContext, mCursorLoaderQuery.getUri(),
-                mCursorLoaderQuery.getProjection(), mCursorLoaderQuery.getSelection(),
-                mCursorLoaderQuery.getSelectionArgs(), mCursorLoaderQuery.getSortOrder());
+        CursorLoaderQuery cursorLoaderQuery = CursorLoaderQuery.getCursorLoaderQuery(
+                mContext.getSharedPreferences(Constants.SHARED_PREFS_FILE_NAME,
+                        Context.MODE_PRIVATE).getInt(Constants.PREFS_FILTER, 0));
+        return new CursorLoader(mContext, cursorLoaderQuery.getUri(),
+                cursorLoaderQuery.getProjection(), cursorLoaderQuery.getSelection(),
+                cursorLoaderQuery.getSelectionArgs(), cursorLoaderQuery.getSortOrder());
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, final Cursor cursor) {
         Log.d(Constants.LOG_TAG, GridFragment.class.getSimpleName() + " onLoadFinished()");
-        mGridAdapter.swapCursor(cursor);
-        if (mGridView.getAdapter() == null) {
-            Log.d(Constants.LOG_TAG, GridFragment.class.getSimpleName() + " onLoadFinished() " +
-                    "setting adapter");
-            mGridView.setAdapter(mGridAdapter);
-        }
+        WindowManager windowManager = (WindowManager) mContext
+                .getSystemService(Context.WINDOW_SERVICE);
+        int numColumns = mContext.getResources().getInteger(R.integer.grid_columns);
+        final Point point = new Point();
+        windowManager.getDefaultDisplay().getSize(point);
+        GridAdapter adapter = new GridAdapter(cursor, mContext, point.x, numColumns, 0, getFragmentManager());
+        adapter.setHasStableIds(true);
+        RecyclerView recyclerView = (RecyclerView) getView().findViewById(R.id.recycler_view);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.addItemDecoration(new GridSpacingDecoration());
+        recyclerView.setLayoutManager(new GridLayoutManager(mContext,
+                mContext.getResources().getInteger(R.integer.grid_columns)));
+        recyclerView.setAdapter(adapter);
+        recyclerView.scrollToPosition(mStartGridPosition);
     }
+
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         Log.d(Constants.LOG_TAG, GridFragment.class.getSimpleName() + " onLoaderReset()");
-//        mGridView.setAdapter(null);
-//        mGridAdapter.destroy();
+        RecyclerView recyclerView = (RecyclerView) getView().findViewById(R.id.recycler_view);
+        mStartGridPosition = ((GridLayoutManager)recyclerView.getLayoutManager()).findFirstCompletelyVisibleItemPosition();
+        GridAdapter adapter = (GridAdapter)recyclerView.getAdapter();
+        adapter.destroy();
+        recyclerView.setAdapter(null);
     }
 
     @Override
     public void onDestroyView() {
         Log.d(Constants.LOG_TAG, GridFragment.class.getSimpleName() + " onDestroyView()");
         super.onDestroyView();
-
-        mGridView.setAdapter(null);
-        if (mGridAdapter != null) {
-            mGridAdapter.destroy();
-            mGridAdapter = null;
-        }
     }
 
     @Override
@@ -121,5 +108,11 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
         if (s.equals(Constants.PREFS_FILTER)) {
 
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putInt("position", mStartGridPosition);
+        super.onSaveInstanceState(outState);
     }
 }

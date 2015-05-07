@@ -6,6 +6,7 @@ import android.graphics.Point;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,6 +54,7 @@ public class FullscreenImageFragment extends Fragment implements BitmapResultLis
     public void onRequestResult(BitmapResult bitmapResult) {
         String tag = (String)bitmapResult.mImageView.getTag();
         if (tag.equals(bitmapResult.mPath) && bitmapResult.mListenerId.equals(mListenerId)) {
+            Log.d("MATS", "hq received");
             bitmapResult.mImageView.setImageBitmap(bitmapResult.mBitmap);
         }
     }

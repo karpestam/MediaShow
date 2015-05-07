@@ -12,7 +12,6 @@ public class BitmapRequest {
     public int mWidth;
     public int mHeight;
     public int mMediaType;
-    public ViewHolder mViewHolder;
 
     public BitmapRequest(String path, int orientation, ImageView imageView, String listenerId,
             boolean highQuality, int width, int height, int mediaType) {

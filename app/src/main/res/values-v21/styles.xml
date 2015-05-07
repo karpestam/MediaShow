@@ -1,23 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="AppThemeLight" parent="android:Theme.Material.NoActionBar">
+    <style name="AppThemeLight" parent="android:Theme.Material">
 
         <!-- enable window content transitions -->
         <!--<item name="android:colorPrimaryDark">#44FFFFFF</item>-->
         <!--<item name="android:background">@android:color/white</item>-->
         <!--<item name="android:windowContentTransitions">true</item>-->
-        <!--<item name="android:windowContentTransitions">true</item>-->
         <!--<item name="android:windowAllowEnterTransitionOverlap">true</item>-->
-        <!--<item name="android:windowTranslucentStatus">true</item>-->
-        <!--<item name="android:windowTranslucentNavigation">@bool/navigation_translucent</item>-->
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">@bool/navigation_translucent</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <!--<item name="android:windowSharedElementsUseOverlay">true</item>-->
-        <!--<item name="android:actionBarStyle">@style/ActionBarStyle</item>-->
+        <item name="android:actionBarStyle">@style/ActionBarStyle</item>
     </style>
 
     <style name="ActionBarStyle" parent="android:Widget.Material.ActionBar">
-        <item name="android:background">#44FFFFFF</item>
+        <item name="android:background">#00000000</item>
 
     </style>
 

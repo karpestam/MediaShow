@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 public class BitmapRequester {
     /* This instance, single-ton. */
     private static BitmapRequester mBitmapRequester;
-    private static final int NUMBER_OF_WORKER_THREADS = 2;
+    private static final int NUMBER_OF_WORKER_THREADS = 3;
     private Map<String, BitmapResultListener> mListeners;
     private ThreadPoolExecutor mExecutor;
     private BitmapCache mBitmapCache;
@@ -50,7 +50,7 @@ public class BitmapRequester {
          and maximum queue length is 30.
           */
         mExecutor = new ThreadPoolExecutor(NUMBER_OF_WORKER_THREADS, NUMBER_OF_WORKER_THREADS, 0,
-                TimeUnit.NANOSECONDS, new LinkedBlockingDeque<Runnable>(35) {
+                TimeUnit.NANOSECONDS, new LinkedBlockingDeque<Runnable>(30) {
             @Override
             public boolean offer(Runnable runnable) {
                 if (remainingCapacity() == 0) {
