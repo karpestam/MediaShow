@@ -12,10 +12,12 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.RecyclerView.OnScrollListener;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager;
 
 import se.karpestam.mediashow.Constants;
@@ -28,19 +30,59 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
 
     public static final String FRAGMENT_TAG = GridFragment.class.getSimpleName();
     private Context mContext;
-    private int mStartGridPosition = 0;
+    private int mLastFirstVisibleItem = 0;
+    private RecyclerView mRecyclerView;
+    private GridLayoutManager mGridLayoutManager;
+    private GridAdapter mGridAdapter;
+    private WindowManager mWindowManager;
+
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        Log.d(Constants.LOG_TAG, GridFragment.class.getSimpleName() + " onCreateView() " +
-                "savedInstanceState=" + savedInstanceState);
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         getActivity().getActionBar().show();
         if (savedInstanceState != null) {
-            mStartGridPosition = savedInstanceState.getInt("position");
+            mLastFirstVisibleItem = savedInstanceState.getInt("position");
         }
         mContext = getActivity().getApplicationContext();
 
-        return inflater.inflate(R.layout.recyclerview, container, false);
+        mWindowManager = (WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE);
+        int numColumns = mContext.getResources().getInteger(R.integer.grid_columns);
+        final Point point = new Point();
+        mWindowManager.getDefaultDisplay().getSize(point);
+        mGridAdapter = new GridAdapter(mContext, point.x, numColumns, 0, getFragmentManager());
+        mGridAdapter.setHasStableIds(true);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
+        Log.d(Constants.LOG_TAG, GridFragment.class.getSimpleName() + " onCreateView() " +
+                "savedInstanceState=" + savedInstanceState);
+
+        mRecyclerView = (RecyclerView)inflater.inflate(R.layout.recyclerview, container, false);
+        mRecyclerView.setHasFixedSize(true);
+        mRecyclerView.addItemDecoration(new GridSpacingDecoration());
+        mRecyclerView.addOnScrollListener(new OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                final int currentFirstVisibleItem = mGridLayoutManager.findFirstVisibleItemPosition();
+
+                if (currentFirstVisibleItem > mLastFirstVisibleItem) {
+                    getActivity().getActionBar().hide();
+                } else if (currentFirstVisibleItem < mLastFirstVisibleItem) {
+                    getActivity().getActionBar().show();
+                }
+
+                mLastFirstVisibleItem = currentFirstVisibleItem;
+
+            }
+        });
+        mGridLayoutManager = new GridLayoutManager(mContext,
+                mContext.getResources().getInteger(R.integer.grid_columns));
+        mRecyclerView.setLayoutManager(mGridLayoutManager);
+
+        return mRecyclerView;
     }
 
     @Override
@@ -68,31 +110,19 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public void onLoadFinished(Loader<Cursor> loader, final Cursor cursor) {
         Log.d(Constants.LOG_TAG, GridFragment.class.getSimpleName() + " onLoadFinished()");
-        WindowManager windowManager = (WindowManager) mContext
-                .getSystemService(Context.WINDOW_SERVICE);
-        int numColumns = mContext.getResources().getInteger(R.integer.grid_columns);
-        final Point point = new Point();
-        windowManager.getDefaultDisplay().getSize(point);
-        GridAdapter adapter = new GridAdapter(cursor, mContext, point.x, numColumns, 0, getFragmentManager());
-        adapter.setHasStableIds(true);
-        RecyclerView recyclerView = (RecyclerView) getView().findViewById(R.id.recycler_view);
-        recyclerView.setHasFixedSize(true);
-        recyclerView.addItemDecoration(new GridSpacingDecoration());
-        recyclerView.setLayoutManager(new GridLayoutManager(mContext,
-                mContext.getResources().getInteger(R.integer.grid_columns)));
-        recyclerView.setAdapter(adapter);
-        recyclerView.scrollToPosition(mStartGridPosition);
+
+        mGridAdapter.setCursor(cursor);
+        if (mRecyclerView.getAdapter() == null) {
+            mRecyclerView.setAdapter(mGridAdapter);
+        }
+        mRecyclerView.scrollToPosition(mLastFirstVisibleItem);
     }
 
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         Log.d(Constants.LOG_TAG, GridFragment.class.getSimpleName() + " onLoaderReset()");
-        RecyclerView recyclerView = (RecyclerView) getView().findViewById(R.id.recycler_view);
-        mStartGridPosition = ((GridLayoutManager)recyclerView.getLayoutManager()).findFirstCompletelyVisibleItemPosition();
-        GridAdapter adapter = (GridAdapter)recyclerView.getAdapter();
-        adapter.destroy();
-        recyclerView.setAdapter(null);
+        mLastFirstVisibleItem = mGridLayoutManager.findFirstCompletelyVisibleItemPosition();
     }
 
     @Override
@@ -112,7 +142,15 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putInt("position", mStartGridPosition);
+        outState.putInt("position", mLastFirstVisibleItem);
         super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        mRecyclerView.setAdapter(null);
+        mGridAdapter.destroy();
     }
 }

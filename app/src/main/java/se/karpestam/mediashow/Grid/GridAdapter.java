@@ -1,6 +1,8 @@
 package se.karpestam.mediashow.Grid;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -29,10 +31,9 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> im
     private final int mGridItemSize;
     private final String mListenerId = this.toString();
     private FragmentManager mFragmentManager;
-    public GridAdapter(Cursor cursor, Context context, int screenWidth, int numColumns, int spacing,
+    public GridAdapter(Context context, int screenWidth, int numColumns, int spacing,
                        FragmentManager fragmentManager) {
         super();
-        mCursor = cursor;
         mContext = context;
         mGridItemSize = (screenWidth / numColumns) - spacing;
         BitmapRequester.getInstance(context).addListener(mListenerId, this);
@@ -84,6 +85,10 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> im
         }
     }
 
+    public void setCursor(Cursor cursor) {
+        mCursor = cursor;
+        notifyDataSetChanged();
+    }
     /**
      * Should be called when calling Context is getting destroyed.
      */

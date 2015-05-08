@@ -119,7 +119,7 @@ public class FullscreenVideoFragment extends Fragment implements BitmapResultLis
         if (mIsVisibleToUser) {
             startVideo();
         } else if (mVideoPlayer != null) {
-            mVideoPlayer.stop();
+            mVideoPlayer.pause();
         }
     }
 
