@@ -1,14 +1,13 @@
 package se.karpestam.mediashow.Grid;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,12 +30,15 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> im
     private final int mGridItemSize;
     private final String mListenerId = this.toString();
     private FragmentManager mFragmentManager;
+    private RelativeLayout.LayoutParams mLayoutParams;
     public GridAdapter(Context context, int screenWidth, int numColumns, int spacing,
                        FragmentManager fragmentManager) {
         super();
         mContext = context;
         mGridItemSize = (screenWidth / numColumns) - spacing;
         BitmapRequester.getInstance(context).addListener(mListenerId, this);
+        mLayoutParams = new RelativeLayout.LayoutParams(mGridItemSize,
+                mGridItemSize);
         mFragmentManager = fragmentManager;
     }
 
@@ -44,10 +46,8 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> im
     public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         View gridItem = LayoutInflater.from(viewGroup.getContext())
                 .inflate(R.layout.grid_item, viewGroup, false);
-        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(mGridItemSize,
-                mGridItemSize);
-        gridItem.setLayoutParams(params);
-        return new ViewHolder(gridItem);
+        gridItem.setLayoutParams(mLayoutParams);
+        return new ViewHolder(gridItem, mFragmentManager);
     }
 
     @Override
@@ -67,10 +67,10 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> im
         viewHolder.mImageView.setImageBitmap(bitmap);
     }
 
-    @Override
-    public long getItemId(int position) {
-        return position;
-    }
+//    @Override
+//    public long getItemId(int position) {
+//        return position;
+//    }
 
     @Override
     public int getItemCount() {
@@ -81,7 +81,9 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> im
     public void onRequestResult(BitmapResult bitmapResult) {
         String tag = (String) bitmapResult.mImageView.getTag();
         if (tag.equals(bitmapResult.mPath) && bitmapResult.mListenerId.equals(mListenerId)) {
+            bitmapResult.mImageView.setAlpha(0f);
             bitmapResult.mImageView.setImageBitmap(bitmapResult.mBitmap);
+            bitmapResult.mImageView.animate().alpha(1.0f).setDuration(85).start();
         }
     }
 
@@ -97,14 +99,15 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> im
     }
 
 
-    class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         public ImageView mImageView;
         private int mPosition;
-
-        public ViewHolder(View v) {
+        private FragmentManager mFragmentManager;
+        public ViewHolder(View v, FragmentManager fragmentManager) {
             super(v);
             mImageView = (ImageView) v.findViewById(R.id.grid_image);
             mImageView.setOnClickListener(this);
+            mFragmentManager = fragmentManager;
         }
 
         @Override
@@ -113,7 +116,7 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> im
             Bundle bundle = new Bundle();
             bundle.putInt(FullscreenFragment.CURSOR_START_POSITION, mPosition);
             fragment.setArguments(bundle);
-            mFragmentManager.beginTransaction()
+            mFragmentManager.beginTransaction().setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                     .replace(R.id.fragment, fragment, FullscreenFragment.FRAGMENT_TAG)
                     .addToBackStack(FullscreenFragment.FRAGMENT_TAG).commit();
         }

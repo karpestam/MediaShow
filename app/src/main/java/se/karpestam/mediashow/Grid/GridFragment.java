@@ -13,6 +13,7 @@ import android.support.v4.content.Loader;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.OnScrollListener;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,29 +40,30 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getActivity().getActionBar().show();
+
         if (savedInstanceState != null) {
             mLastFirstVisibleItem = savedInstanceState.getInt("position");
         }
         mContext = getActivity().getApplicationContext();
-
-        mWindowManager = (WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE);
+        mWindowManager = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
         int numColumns = mContext.getResources().getInteger(R.integer.grid_columns);
         final Point point = new Point();
         mWindowManager.getDefaultDisplay().getSize(point);
         mGridAdapter = new GridAdapter(mContext, point.x, numColumns, 0, getFragmentManager());
-        mGridAdapter.setHasStableIds(true);
+//        mGridAdapter.setHasStableIds(true);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+                             Bundle savedInstanceState) {
+        getActivity().getActionBar().hide();
+        getActivity().getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN);
         Log.d(Constants.LOG_TAG, GridFragment.class.getSimpleName() + " onCreateView() " +
                 "savedInstanceState=" + savedInstanceState);
 
-        mRecyclerView = (RecyclerView)inflater.inflate(R.layout.recyclerview, container, false);
+        mRecyclerView = (RecyclerView) inflater.inflate(R.layout.recyclerview, container, false);
         mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.addItemDecoration(new GridSpacingDecoration());
+//        mRecyclerView.addItemDecoration(new GridSpacingDecoration());
         mRecyclerView.addOnScrollListener(new OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -69,13 +71,11 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
                 final int currentFirstVisibleItem = mGridLayoutManager.findFirstVisibleItemPosition();
 
                 if (currentFirstVisibleItem > mLastFirstVisibleItem) {
-                    getActivity().getActionBar().hide();
+//                    getActivity().getActionBar().hide();
                 } else if (currentFirstVisibleItem < mLastFirstVisibleItem) {
-                    getActivity().getActionBar().show();
+//                    getActivity().getActionBar().show();
                 }
-
                 mLastFirstVisibleItem = currentFirstVisibleItem;
-
             }
         });
         mGridLayoutManager = new GridLayoutManager(mContext,
@@ -86,16 +86,11 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         getLoaderManager().restartLoader(0, null, this);
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        getLoaderManager().destroyLoader(0);
-    }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
@@ -129,6 +124,8 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
     public void onDestroyView() {
         Log.d(Constants.LOG_TAG, GridFragment.class.getSimpleName() + " onDestroyView()");
         super.onDestroyView();
+
+        getLoaderManager().destroyLoader(0);
     }
 
     @Override
@@ -148,6 +145,8 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
 
     @Override
     public void onDestroy() {
+        Log.d(Constants.LOG_TAG, GridFragment.class.getSimpleName() + " " +
+                "onDestroy()");
         super.onDestroy();
 
         mRecyclerView.setAdapter(null);

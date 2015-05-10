@@ -11,7 +11,7 @@ class BitmapHelper {
     }
 
     public static Bitmap resize(String sourcePath, int width, int height, int orientation,
-            Bitmap.Config config) {
+            Bitmap.Config config, boolean isHighQuality) {
         final BitmapFactory.Options options = new BitmapFactory.Options();
         /* First decode with inJustDecodeBounds=true to check dimensions. */
         options.inJustDecodeBounds = true;
@@ -23,7 +23,7 @@ class BitmapHelper {
             options.outWidth = oldWidth;
             options.outHeight = oldHeight;
         }
-        options.inSampleSize = calculateInSampleSize(options, width, height);
+        options.inSampleSize = calculateInSampleSize(options, width, height, isHighQuality);
         /* Decode bitmap with inSampleSize set. */
         options.inJustDecodeBounds = false;
         options.inPreferredConfig = config;
@@ -39,7 +39,7 @@ class BitmapHelper {
     }
 
     private static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth,
-            int reqHeight) {
+            int reqHeight, boolean isHighQuality) {
         // Raw height and width of image
         final int height = options.outHeight;
         final int width = options.outWidth;
@@ -56,7 +56,7 @@ class BitmapHelper {
             }
         }
 
-        return inSampleSize+1;
+        return (inSampleSize + (isHighQuality ? 0 : 2));
     }
 
     private static boolean isNotSameAspect(int width, int height, BitmapFactory.Options options) {

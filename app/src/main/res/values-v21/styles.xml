@@ -1,19 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="AppThemeLight" parent="android:Theme.Material.Light">
+    <style name="AppThemeLight" parent="android:Theme.Material">
 
         <!-- enable window content transitions -->
-        <item name="android:colorPrimary">#ff8cbda7</item>
-        <item name="android:colorPrimaryDark">#ff6b9681</item>
-        <item name="android:navigationBarColor">#6b9681</item>
-        <item name="android:textColorPrimary">@android:color/white</item>
-        <item name="android:windowActionBarOverlay">true</item>
-        <!--<item name="android:background">@android:color/white</item>-->
+        <!--<item name="android:colorPrimary">#006064</item>-->
+        <!--<item name="android:colorPrimaryDark">#ff004b4f</item>-->
+        <!--<item name="android:navigationBarColor">#ff004b4f</item>-->
+        <!--<item name="android:windowActionBarOverlay">true</item>-->
         <!--<item name="android:windowContentTransitions">true</item>-->
         <!--<item name="android:windowAllowEnterTransitionOverlap">true</item>-->
         <!--<item name="android:windowTranslucentStatus">true</item>-->
-        <item name="android:windowTranslucentNavigation">@bool/navigation_translucent</item>
+        <!--<item name="android:windowTranslucentNavigation">@bool/navigation_translucent</item>-->
         <!--<item name="android:windowDrawsSystemBarBackgrounds">true</item>-->
         <!--<item name="android:windowSharedElementsUseOverlay">true</item>-->
         <!--<item name="android:actionBarStyle">@style/ActionBarStyle</item>-->

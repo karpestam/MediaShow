@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 public class BitmapRequester {
     /* This instance, single-ton. */
     private static BitmapRequester mBitmapRequester;
-    private static final int NUMBER_OF_WORKER_THREADS = 3;
+    private static final int NUMBER_OF_WORKER_THREADS = 1;
     private Map<String, BitmapResultListener> mListeners;
     private ThreadPoolExecutor mExecutor;
     private BitmapCache mBitmapCache;
@@ -32,8 +32,8 @@ public class BitmapRequester {
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
 
-            BitmapResult bitmapResult = (BitmapResult)msg.obj;
-            if (bitmapResult.mBitmap != null) {
+            BitmapResult bitmapResult = (BitmapResult) msg.obj;
+            if (bitmapResult.mBitmap != null && msg.arg1 == 0) {
                 mBitmapCache.put(bitmapResult.mPath, bitmapResult.mBitmap);
             }
             Collection<BitmapResultListener> listeners = mListeners.values();
@@ -111,7 +111,7 @@ public class BitmapRequester {
                                 .resize(bitmapRequest.mPath, bitmapRequest.mWidth, bitmapRequest.mHeight,
                                         bitmapRequest.mOrientation,
                                         (bitmapRequest.mHighQuality ? Config.ARGB_8888 : Config
-                                                .RGB_565));
+                                                .RGB_565), bitmapRequest.mHighQuality);
                     } else {
                         bitmap = ThumbnailUtils.createVideoThumbnail(bitmapRequest.mPath,
                                 bitmapRequest.mHighQuality ? MediaStore.Video.Thumbnails
@@ -129,5 +129,4 @@ public class BitmapRequester {
             }
         };
     }
-
 }
