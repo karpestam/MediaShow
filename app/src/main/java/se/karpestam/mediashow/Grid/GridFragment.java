@@ -79,7 +79,7 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
         });
         mGridLayoutManager = new StaggeredGridLayoutManager(
                 mContext.getResources().getInteger(R.integer.grid_columns), StaggeredGridLayoutManager.VERTICAL);
-//        mGridLayoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
+        mGridLayoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
         mRecyclerView.setLayoutManager(mGridLayoutManager);
         return mRecyclerView;
     }

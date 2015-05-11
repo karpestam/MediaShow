@@ -3,6 +3,7 @@ package se.karpestam.mediashow.Media;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.util.Log;
 
 class BitmapHelper {
 
@@ -35,6 +36,7 @@ class BitmapHelper {
                     .createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix,
                             true);
         }
+        Log.d("MATS", "resize width=" + width + " result=" + bitmap.getWidth());
         return bitmap;
     }
 
