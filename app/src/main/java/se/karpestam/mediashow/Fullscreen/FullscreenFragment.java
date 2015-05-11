@@ -12,6 +12,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.transition.Explode;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,7 +36,6 @@ public class FullscreenFragment extends Fragment implements LoaderManager.Loader
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
-        getActivity().getActionBar().hide();
         super.onCreate(savedInstanceState);
     }
 

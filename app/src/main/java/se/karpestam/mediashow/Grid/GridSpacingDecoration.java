@@ -16,7 +16,8 @@ public class GridSpacingDecoration extends ItemDecoration {
 
         super.getItemOffsets(outRect, view, parent, state);
 
-        int spacing = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 6, view.getResources().getDisplayMetrics());
+        int spacing = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, view
+                .getResources().getDisplayMetrics());
         int halfSpacing = spacing / 2;
 
         int childCount = parent.getChildCount();
@@ -33,7 +34,7 @@ public class GridSpacingDecoration extends ItemDecoration {
         outRect.right = halfSpacing;
 
         if (isTopEdge(childIndex, spanCount)) {
-            outRect.top = spacing/2;
+            outRect.top = spacing;
         }
 
         if (isLeftEdge(spanIndex, spanCount)) {
@@ -45,7 +46,7 @@ public class GridSpacingDecoration extends ItemDecoration {
         }
 
         if (isBottomEdge(childIndex, childCount, spanCount)) {
-            outRect.bottom = spacing/2;
+            outRect.bottom = spacing;
         }
     }
 

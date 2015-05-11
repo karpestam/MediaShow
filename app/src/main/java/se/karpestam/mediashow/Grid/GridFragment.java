@@ -14,6 +14,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.OnScrollListener;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.transition.Explode;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,7 +34,7 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
     private Context mContext;
     private int mLastFirstVisibleItem = 0;
     private RecyclerView mRecyclerView;
-    private GridLayoutManager mGridLayoutManager;
+    private StaggeredGridLayoutManager mGridLayoutManager;
     private GridAdapter mGridAdapter;
     private WindowManager mWindowManager;
 
@@ -49,39 +50,37 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
         int numColumns = mContext.getResources().getInteger(R.integer.grid_columns);
         final Point point = new Point();
         mWindowManager.getDefaultDisplay().getSize(point);
-        mGridAdapter = new GridAdapter(mContext, point.x, numColumns, 0, getFragmentManager());
-//        mGridAdapter.setHasStableIds(true);
+        mGridAdapter = new GridAdapter(mContext, point.x, point.y, numColumns, 0,
+                getFragmentManager());
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        getActivity().getActionBar().hide();
-        getActivity().getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN);
+        setExitTransition(new Explode());
         Log.d(Constants.LOG_TAG, GridFragment.class.getSimpleName() + " onCreateView() " +
                 "savedInstanceState=" + savedInstanceState);
 
         mRecyclerView = (RecyclerView) inflater.inflate(R.layout.recyclerview, container, false);
-        mRecyclerView.setHasFixedSize(true);
 //        mRecyclerView.addItemDecoration(new GridSpacingDecoration());
         mRecyclerView.addOnScrollListener(new OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                final int currentFirstVisibleItem = mGridLayoutManager.findFirstVisibleItemPosition();
+//                final int currentFirstVisibleItem = mGridLayoutManager.findFirstVisibleItemPosition();
 
-                if (currentFirstVisibleItem > mLastFirstVisibleItem) {
+//                if (currentFirstVisibleItem > mLastFirstVisibleItem) {
 //                    getActivity().getActionBar().hide();
-                } else if (currentFirstVisibleItem < mLastFirstVisibleItem) {
+//                } else if (currentFirstVisibleItem < mLastFirstVisibleItem) {
 //                    getActivity().getActionBar().show();
-                }
-                mLastFirstVisibleItem = currentFirstVisibleItem;
+//                }
+//                mLastFirstVisibleItem = currentFirstVisibleItem;
             }
         });
-        mGridLayoutManager = new GridLayoutManager(mContext,
-                mContext.getResources().getInteger(R.integer.grid_columns));
+        mGridLayoutManager = new StaggeredGridLayoutManager(
+                mContext.getResources().getInteger(R.integer.grid_columns), StaggeredGridLayoutManager.VERTICAL);
+//        mGridLayoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
         mRecyclerView.setLayoutManager(mGridLayoutManager);
-
         return mRecyclerView;
     }
 
@@ -117,7 +116,7 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         Log.d(Constants.LOG_TAG, GridFragment.class.getSimpleName() + " onLoaderReset()");
-        mLastFirstVisibleItem = mGridLayoutManager.findFirstCompletelyVisibleItemPosition();
+//        mLastFirstVisibleItem = mGridLayoutManager.findFirstCompletelyVisibleItemPosition();
     }
 
     @Override

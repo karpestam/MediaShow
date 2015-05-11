@@ -56,7 +56,7 @@ class BitmapHelper {
             }
         }
 
-        return (inSampleSize + (isHighQuality ? 0 : 2));
+        return (inSampleSize + (isHighQuality ? 0 : 1));
     }
 
     private static boolean isNotSameAspect(int width, int height, BitmapFactory.Options options) {

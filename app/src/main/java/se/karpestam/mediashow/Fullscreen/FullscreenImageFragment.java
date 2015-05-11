@@ -41,7 +41,6 @@ public class FullscreenImageFragment extends Fragment implements BitmapResultLis
         final int mediaType = bundle.getInt(MediaStore.Files.FileColumns.MEDIA_TYPE);
         ImageView imageView = (ImageView)view.findViewById(R.id.fullscreen_image);
         imageView.setTag(data);
-
         Point point = getScreenSize();
         Bitmap bitmap = BitmapRequester.getInstance(getActivity().getApplicationContext())
                 .requestBitmap(
@@ -54,7 +53,6 @@ public class FullscreenImageFragment extends Fragment implements BitmapResultLis
     public void onRequestResult(BitmapResult bitmapResult) {
         String tag = (String)bitmapResult.mImageView.getTag();
         if (tag.equals(bitmapResult.mPath) && bitmapResult.mListenerId.equals(mListenerId)) {
-            Log.d("MATS", "hq received");
             bitmapResult.mImageView.setImageBitmap(bitmapResult.mBitmap);
         }
     }
