@@ -74,24 +74,27 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> im
         int width = mCursor.getInt(mCursor.getColumnIndex(FileColumns.WIDTH));
         int height = mCursor.getInt(mCursor.getColumnIndex(FileColumns.HEIGHT));
         float aspectRatio = (float)width/height;
+        boolean isLandscape = true;
         switch (orientation) {
             case 90:
             case 270:
-                int oldWidth = width;
-                int oldHeight = height;
-                width = oldHeight;
-                height = oldWidth;
-                break;
-            default:
+                isLandscape = false;
                 break;
         }
+        Log.d("MATS", "width="+width +  " height="+height + " isLandscape="+isLandscape);
         viewHolder.bindViewHolder(i);
         viewHolder.mImageView.setTag(data);
         StaggeredGridLayoutManager.LayoutParams params = (StaggeredGridLayoutManager.LayoutParams)viewHolder
                 .mImageView
                 .getLayoutParams();
-        params.width = mScreenWidth / mNumColumns;
-        params.height = (int)(params.width/aspectRatio);
+        int imageMaxWidth = mScreenWidth / mNumColumns;
+        if (isLandscape) {
+            params.width = imageMaxWidth;
+            params.height = (int) (params.width / aspectRatio);
+        } else {
+            params.width = imageMaxWidth;
+            params.height = (int)(params.width*aspectRatio);
+        }
         Log.d("MATS", "params width="+params.width + " params height="+params.height);
         viewHolder.mImageView.setLayoutParams(params);
         Bitmap bitmap = BitmapRequester.getInstance(mContext).requestBitmap(
