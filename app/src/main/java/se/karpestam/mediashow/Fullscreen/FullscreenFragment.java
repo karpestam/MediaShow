@@ -13,6 +13,7 @@ import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.transition.Explode;
+import android.transition.Fade;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,7 +43,6 @@ public class FullscreenFragment extends Fragment implements LoaderManager.Loader
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-
         mContext = getActivity().getApplicationContext();
         mCursorLoaderQuery = CursorLoaderQuery.getCursorLoaderQuery(
                 mContext.getSharedPreferences(Constants.SHARED_PREFS_FILE_NAME,

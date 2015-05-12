@@ -13,9 +13,13 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.transition.Explode;
+import android.transition.Fade;
+import android.transition.Slide;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -38,9 +42,9 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> im
     private final int mScreenWidth;
     private final int mScreenHeight;
     private final int mNumColumns;
+    private OnClickListener mOnClickListener;
 
-    public GridAdapter(Context context, int screenWidth, int screenHeight, int numColumns,
-            int spacing, FragmentManager fragmentManager) {
+    public GridAdapter(Context context, int screenWidth, int screenHeight, int numColumns, FragmentManager fragmentManager) {
         super();
         mContext = context;
         mScreenWidth = screenWidth;
@@ -105,9 +109,9 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> im
     public void onRequestResult(BitmapResult bitmapResult) {
         String tag = (String)bitmapResult.mImageView.getTag();
         if (tag.equals(bitmapResult.mPath) && bitmapResult.mListenerId.equals(mListenerId)) {
-            bitmapResult.mImageView.setAlpha(0f);
+//            bitmapResult.mImageView.setAlpha(0f);
             bitmapResult.mImageView.setImageBitmap(bitmapResult.mBitmap);
-            bitmapResult.mImageView.animate().alpha(1.0f).setDuration(85).start();
+//            bitmapResult.mImageView.animate().alpha(1.0f).setDuration(85).start();
         }
     }
 
@@ -127,8 +131,6 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> im
     static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         public ImageView mImageView;
         private int mPosition;
-        public int mWidth;
-        public int mHeight;
         private FragmentManager mFragmentManager;
 
         public ViewHolder(View v, FragmentManager fragmentManager) {
@@ -144,6 +146,8 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> im
             Bundle bundle = new Bundle();
             bundle.putInt(FullscreenFragment.CURSOR_START_POSITION, mPosition);
             fragment.setArguments(bundle);
+//            fragment.setEnterTransition(new Slide(Gravity.RIGHT));
+//            fragment.setReturnTransition(new Slide(Gravity.LEFT));
             mFragmentManager.beginTransaction()
                     .replace(R.id.fragment, fragment, FullscreenFragment.FRAGMENT_TAG)
                     .addToBackStack(FullscreenFragment.FRAGMENT_TAG).commit();

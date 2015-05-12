@@ -46,40 +46,44 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
             mLastFirstVisibleItem = savedInstanceState.getInt("position");
         }
         mContext = getActivity().getApplicationContext();
-        mWindowManager = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
+        mWindowManager = (WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE);
         int numColumns = mContext.getResources().getInteger(R.integer.grid_columns);
         final Point point = new Point();
         mWindowManager.getDefaultDisplay().getSize(point);
-        mGridAdapter = new GridAdapter(mContext, point.x, point.y, numColumns, 0,
+        mGridAdapter = new GridAdapter(mContext, point.x, point.y, numColumns,
                 getFragmentManager());
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+            Bundle savedInstanceState) {
         setExitTransition(new Explode());
+        setReturnTransition(new Explode());
         Log.d(Constants.LOG_TAG, GridFragment.class.getSimpleName() + " onCreateView() " +
                 "savedInstanceState=" + savedInstanceState);
 
-        mRecyclerView = (RecyclerView) inflater.inflate(R.layout.recyclerview, container, false);
+        mRecyclerView = (RecyclerView)inflater.inflate(R.layout.recyclerview, container, false);
 //        mRecyclerView.addItemDecoration(new GridSpacingDecoration());
         mRecyclerView.addOnScrollListener(new OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-//                final int currentFirstVisibleItem = mGridLayoutManager.findFirstVisibleItemPosition();
+                final int[] currentFirstVisibleItem = mGridLayoutManager
+                        .findFirstCompletelyVisibleItemPositions(null);
 
-//                if (currentFirstVisibleItem > mLastFirstVisibleItem) {
+                if (currentFirstVisibleItem[0] > mLastFirstVisibleItem) {
 //                    getActivity().getActionBar().hide();
-//                } else if (currentFirstVisibleItem < mLastFirstVisibleItem) {
+                } else if (currentFirstVisibleItem[0] < mLastFirstVisibleItem) {
 //                    getActivity().getActionBar().show();
-//                }
-//                mLastFirstVisibleItem = currentFirstVisibleItem;
+                }
+//                mLastFirstVisibleItem = currentFirstVisibleItem[0];
             }
         });
         mGridLayoutManager = new StaggeredGridLayoutManager(
-                mContext.getResources().getInteger(R.integer.grid_columns), StaggeredGridLayoutManager.VERTICAL);
-        mGridLayoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
+                mContext.getResources().getInteger(R.integer.grid_columns),
+                StaggeredGridLayoutManager.VERTICAL);
+        mGridLayoutManager
+                .setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
         mRecyclerView.setLayoutManager(mGridLayoutManager);
         return mRecyclerView;
     }
@@ -87,7 +91,7 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        getLoaderManager().restartLoader(0, null, this);
+        getLoaderManager().initLoader(0, null, this);
     }
 
 
@@ -109,14 +113,16 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
         if (mRecyclerView.getAdapter() == null) {
             mRecyclerView.setAdapter(mGridAdapter);
         }
-        mRecyclerView.scrollToPosition(mLastFirstVisibleItem);
+        Log.d("MATS", "mLastFirstVisibleItem="+mLastFirstVisibleItem);
+        mRecyclerView.smoothScrollToPosition(mLastFirstVisibleItem);
     }
 
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         Log.d(Constants.LOG_TAG, GridFragment.class.getSimpleName() + " onLoaderReset()");
-//        mLastFirstVisibleItem = mGridLayoutManager.findFirstCompletelyVisibleItemPosition();
+        int[] firstPositions = mGridLayoutManager.findFirstVisibleItemPositions(null);
+        mLastFirstVisibleItem = firstPositions[0];
     }
 
     @Override

@@ -25,14 +25,13 @@ public class GridSpacingDecoration extends ItemDecoration {
         int spanCount = getTotalSpan( parent);
         int spanIndex = childIndex % spanCount;
 
-        Log.d("MATS", "childindex=" + childIndex + " spanindex=" + spanIndex + " spancount=" + spanCount + " childcount=" + childCount + " view=" + view.getWidth());
         /* INVALID SPAN */
         if (spanCount < 1) return;
 
-        outRect.top = spacing;
-        outRect.bottom = spacing;
-        outRect.left = spacing;
-        outRect.right = spacing;
+        outRect.top = halfSpacing;
+        outRect.bottom = halfSpacing;
+        outRect.left = halfSpacing;
+        outRect.right = halfSpacing;
 
         if (isTopEdge(childIndex, spanCount)) {
             outRect.top = spacing;

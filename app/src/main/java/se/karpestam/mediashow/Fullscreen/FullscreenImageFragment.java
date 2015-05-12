@@ -1,8 +1,13 @@
 package se.karpestam.mediashow.Fullscreen;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Point;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
@@ -11,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 
 import se.karpestam.mediashow.Media.BitmapRequest;
@@ -39,7 +45,7 @@ public class FullscreenImageFragment extends Fragment implements BitmapResultLis
         final String data = bundle.getString(MediaStore.Files.FileColumns.DATA);
         final int orientation = bundle.getInt(MediaStore.Images.ImageColumns.ORIENTATION);
         final int mediaType = bundle.getInt(MediaStore.Files.FileColumns.MEDIA_TYPE);
-        ImageView imageView = (ImageView)view.findViewById(R.id.fullscreen_image);
+        final ImageView imageView = (ImageView)view.findViewById(R.id.fullscreen_image);
         imageView.setTag(data);
         Point point = getScreenSize();
         Bitmap bitmap = BitmapRequester.getInstance(getActivity().getApplicationContext())
