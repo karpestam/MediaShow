@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="AppThemeLight" parent="android:Theme.Material.Light.NoActionBar">
+    <style name="AppThemeLight" parent="android:Theme.Material.Light">
 
         <!-- enable window content transitions -->
-        <!--<item name="android:colorPrimary">#006064</item>-->
-        <!--<item name="android:colorPrimaryDark">#ff004b4f</item>-->
+        <item name="android:colorPrimary">#4DB6AC</item>
+        <item name="android:colorPrimaryDark">#26A69A</item>
         <!--<item name="android:navigationBarColor">#ff004b4f</item>-->
-        <!--<item name="android:windowActionBarOverlay">true</item>-->
-        <item name="android:windowContentTransitions">true</item>
+        <item name="android:windowActionBarOverlay">true</item>
+        <!--<item name="android:windowContentTransitions">true</item>-->
         <!--<item name="android:windowAllowEnterTransitionOverlap">true</item>-->
         <!--<item name="android:windowTranslucentStatus">true</item>-->
         <!--<item name="android:windowTranslucentNavigation">@bool/navigation_translucent</item>-->
@@ -23,7 +23,7 @@
     </style>
 
     <style name="ActionBarStyle" parent="android:Widget.Material.ActionBar">
-        <item name="android:background">#00000000</item>
+        <!--<item name="android:background">#00695C</item>-->
 
     </style>
 

@@ -7,6 +7,7 @@ import android.media.ThumbnailUtils;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
+import android.util.Log;
 
 import java.util.Collection;
 import java.util.HashMap;
