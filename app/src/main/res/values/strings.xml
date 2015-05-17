@@ -4,4 +4,10 @@
     <string name="action_settings">Settings</string>
     <string name="action_share">Share</string>
     <string name="action_delete">Delete</string>
+    <string name="theme_prompt">Choose a theme</string>
+    <string-array name="theme_arrays">
+        <item>Default</item>
+        <item>Dark</item>
+        <item>Light</item>
+    </string-array>
 </resources>

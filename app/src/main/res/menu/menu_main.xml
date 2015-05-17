@@ -8,5 +8,14 @@
         android:orderInCategory="100" android:showAsAction="always"/>
     <item
         android:id="@+id/action_settings" android:title="@string/action_settings"
+        android:orderInCategory="100" android:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/action_default" android:title="Use default theme"
+        android:orderInCategory="100" android:showAsAction="never"/>
+    <item
+        android:id="@+id/action_dark" android:title="Use dark theme"
+        android:orderInCategory="100" android:showAsAction="never"/>
+    <item
+        android:id="@+id/action_light" android:title="Use light theme"
         android:orderInCategory="100" android:showAsAction="never"/>
 </menu>

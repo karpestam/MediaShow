@@ -11,7 +11,9 @@ public class Constants {
 
     public static final String PREFS_FILTER = "prefs_filter";
 
+    public static final String THEME = "theme";
     public static final String SHARED_PREFS_FILE_NAME = "shared_preferences";
+
     private Constants() {
         /* Prevent instantiation. */
     }

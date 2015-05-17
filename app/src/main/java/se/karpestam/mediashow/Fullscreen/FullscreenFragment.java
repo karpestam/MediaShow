@@ -36,11 +36,6 @@ public class FullscreenFragment extends Fragment implements LoaderManager.Loader
     private CursorLoaderQuery mCursorLoaderQuery;
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         mContext = getActivity().getApplicationContext();

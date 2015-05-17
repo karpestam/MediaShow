@@ -37,7 +37,7 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> im
     private HashMap<String, Integer> mSelectedList;
 
     public GridAdapter(Context context, int screenWidth, int screenHeight, int numColumns,
-            SelectionListener selectionListener) {
+                       SelectionListener selectionListener) {
         super();
         mContext = context;
         mScreenWidth = screenWidth;
@@ -50,6 +50,7 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> im
 
     interface SelectionListener {
         void onClicked(int position, String data, View view);
+
         void onLongClicked(int position, String data, View view);
     }
 
@@ -71,7 +72,7 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> im
                 .getInt(mCursor.getColumnIndex(MediaStore.Images.Media.ORIENTATION));
         int width = mCursor.getInt(mCursor.getColumnIndex(FileColumns.WIDTH));
         int height = mCursor.getInt(mCursor.getColumnIndex(FileColumns.HEIGHT));
-        float aspectRatio = (float)width / height;
+        float aspectRatio = (float) width / height;
         boolean isLandscape = true;
         switch (orientation) {
             case 90:
@@ -82,17 +83,16 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> im
         viewHolder.bindViewHolder(position, data);
         viewHolder.mImageView.setTag(data);
         StaggeredGridLayoutManager.LayoutParams params = (StaggeredGridLayoutManager
-                .LayoutParams)viewHolder.mImageView
+                .LayoutParams) viewHolder.mImageView
                 .getLayoutParams();
         int imageMaxWidth = mScreenWidth / mNumColumns;
         if (isLandscape) {
             params.width = imageMaxWidth;
-            params.height = (int)(params.width / aspectRatio);
+            params.height = (int) (params.width / aspectRatio);
         } else {
             params.width = imageMaxWidth;
-            params.height = (int)(params.width * aspectRatio);
+            params.height = (int) (params.width * aspectRatio);
         }
-        Log.d("MATS", "params width=" + params.width + " params height=" + params.height);
         viewHolder.mImageView.setLayoutParams(params);
         Bitmap bitmap = BitmapRequester.getInstance(mContext).requestBitmap(
                 new BitmapRequest(data, orientation, viewHolder.mImageView, mListenerId, false,
@@ -110,7 +110,7 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> im
     @Override
     public void onRequestResult(BitmapResult bitmapResult) {
         if (bitmapResult.mImageView != null) {
-            String tag = (String)bitmapResult.mImageView.getTag();
+            String tag = (String) bitmapResult.mImageView.getTag();
             if (tag.equals(bitmapResult.mPath) && bitmapResult.mListenerId.equals(mListenerId)) {
                 bitmapResult.mImageView.setImageBitmap(bitmapResult.mBitmap);
             }
@@ -120,6 +120,7 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> im
     public void setColumns(int columns) {
         mNumColumns = columns;
     }
+
     public void setCursor(Cursor cursor) {
         mCursor = cursor;
         notifyDataSetChanged();
@@ -165,7 +166,7 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> im
                             .getInt(mCursor.getColumnIndex(MediaStore.Images.Media.ORIENTATION));
                     int width = mCursor.getInt(mCursor.getColumnIndex(FileColumns.WIDTH));
                     int height = mCursor.getInt(mCursor.getColumnIndex(FileColumns.HEIGHT));
-                    float aspectRatio = (float)width / height;
+                    float aspectRatio = (float) width / height;
                     boolean isLandscape = true;
                     switch (orientation) {
                         case 90:
@@ -176,10 +177,10 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> im
                     int imageMaxWidth = mScreenWidth / mNumColumns;
                     if (isLandscape) {
                         width = imageMaxWidth;
-                        height = (int)(width / aspectRatio);
+                        height = (int) (width / aspectRatio);
                     } else {
                         width = imageMaxWidth;
-                        height = (int)(width * aspectRatio);
+                        height = (int) (width * aspectRatio);
                     }
                     BitmapRequester.getInstance(mContext).requestBitmap(
                             new BitmapRequest(data, orientation, null, mListenerId, false, width,
@@ -198,7 +199,7 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> im
 
         public ViewHolder(View v) {
             super(v);
-            mImageView = (ImageView)v.findViewById(R.id.grid_image);
+            mImageView = (ImageView) v.findViewById(R.id.grid_image);
             mImageView.setOnClickListener(this);
             mImageView.setOnLongClickListener(this);
         }

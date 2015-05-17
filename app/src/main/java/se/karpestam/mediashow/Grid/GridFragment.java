@@ -1,6 +1,5 @@
 package se.karpestam.mediashow.Grid;
 
-import android.app.ActionBar;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -11,25 +10,23 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.OnScrollListener;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.transition.Explode;
 import android.util.Log;
 import android.view.ActionMode;
-import android.view.ActionMode.Callback;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Toast;
+import android.widget.AdapterView;
+import android.widget.Spinner;
+import android.widget.Toolbar;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
@@ -50,17 +47,23 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
     private StaggeredGridLayoutManager mGridLayoutManager;
     private GridAdapter mGridAdapter;
     private WindowManager mWindowManager;
+    private Toolbar mToolbar;
+    private Toolbar mActionToolbar;
     private ActionMode mActionMode;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setEnterTransition(new Explode());
+        setExitTransition(new Explode());
+        setReturnTransition(new Explode());
+        setReenterTransition(new Explode());
         setHasOptionsMenu(true);
         if (savedInstanceState != null) {
             mLastFirstVisibleItem = savedInstanceState.getInt("position");
         }
         mContext = getActivity().getApplicationContext();
-        mWindowManager = (WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE);
+        mWindowManager = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
         int numColumns = mContext.getResources().getInteger(R.integer.grid_columns);
         final Point point = new Point();
         mWindowManager.getDefaultDisplay().getSize(point);
@@ -69,15 +72,19 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
-        getActivity().getActionBar().show();
-        setExitTransition(new Explode());
-        setReturnTransition(new Explode());
+                             Bundle savedInstanceState) {
+//        setExitTransition(new Explode());
+//        setEnterTransition(new Explode());
+//        setReturnTransition(new Explode());
         Log.d(Constants.LOG_TAG, GridFragment.class.getSimpleName() + " onCreateView() " +
                 "savedInstanceState=" + savedInstanceState);
+        return inflater.inflate(R.layout.grid_fragment, container, false);
+    }
 
-        mRecyclerView = (RecyclerView)inflater.inflate(R.layout.recyclerview, container, false);
-//        mRecyclerView.addItemDecoration(new GridSpacingDecoration());
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
         mRecyclerView.addOnScrollListener(new OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -86,9 +93,9 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
                         .findFirstVisibleItemPositions(null);
 
                 if (currentFirstVisibleItem[0] > mLastFirstVisibleItem) {
-                    getActivity().getActionBar().hide();
+//                    getActivity().getActionBar().hide();
                 } else if (currentFirstVisibleItem[0] < mLastFirstVisibleItem) {
-                    getActivity().getActionBar().show();
+//                    getActivity().getActionBar().show();
                 }
                 mLastFirstVisibleItem = currentFirstVisibleItem[0];
             }
@@ -99,12 +106,9 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
         mGridLayoutManager
                 .setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
         mRecyclerView.setLayoutManager(mGridLayoutManager);
-        return mRecyclerView;
-    }
-
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+        mToolbar = (Toolbar) view.findViewById(R.id.toolbar);
+        getActivity().setActionBar(mToolbar);
+        mActionToolbar = (Toolbar) view.findViewById(R.id.settings_toolbar);
         getLoaderManager().initLoader(0, null, this);
     }
 
@@ -127,7 +131,6 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
         if (mRecyclerView.getAdapter() == null) {
             mRecyclerView.setAdapter(mGridAdapter);
         }
-        Log.d("MATS", "mLastFirstVisibleItem=" + mLastFirstVisibleItem);
         mRecyclerView.smoothScrollToPosition(mLastFirstVisibleItem);
     }
 
@@ -165,16 +168,30 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_add:
-                int columns = mGridLayoutManager.getSpanCount()+1;
+                int columns = mGridLayoutManager.getSpanCount() + 1;
                 mGridAdapter.setColumns(columns);
                 mGridLayoutManager.setSpanCount(columns);
                 mGridAdapter.notifyDataSetChanged();
                 return true;
             case R.id.action_reduce:
-                int columnsToReduce = mGridLayoutManager.getSpanCount()-1;
+                int columnsToReduce = mGridLayoutManager.getSpanCount() - 1;
                 mGridAdapter.setColumns(columnsToReduce);
                 mGridLayoutManager.setSpanCount(columnsToReduce);
                 mGridAdapter.notifyDataSetChanged();
+                return true;
+            case R.id.action_settings:
+                return true;
+            case R.id.action_light:
+                mContext.getSharedPreferences(Constants.SHARED_PREFS_FILE_NAME, Context.MODE_PRIVATE).edit().putInt(Constants.THEME, 1).apply();
+                getActivity().recreate();
+                return true;
+            case R.id.action_dark:
+                mContext.getSharedPreferences(Constants.SHARED_PREFS_FILE_NAME, Context.MODE_PRIVATE).edit().putInt(Constants.THEME, 2).apply();
+                getActivity().recreate();
+                return true;
+            case R.id.action_default:
+                mContext.getSharedPreferences(Constants.SHARED_PREFS_FILE_NAME, Context.MODE_PRIVATE).edit().putInt(Constants.THEME, 0).apply();
+                getActivity().recreate();
                 return true;
         }
         return false;
@@ -202,60 +219,60 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
             mGridAdapter.setSelected(data, view, position);
             mActionMode.setTitle(mGridAdapter.getSelected().size() + " items selected");
         } else {
-            ActionBar actionBar = getActivity().getActionBar();
-            getActivity().getActionBar().hide();
             Fragment fragment = new FullscreenFragment();
             Bundle bundle = new Bundle();
             bundle.putInt(FullscreenFragment.CURSOR_START_POSITION, position);
             fragment.setArguments(bundle);
+//            fragment.setEnterTransition(new Explode());
+//            fragment.setExitTransition(new Explode());
+//            fragment.setReenterTransition(new Explode());
+//            setCustomAnimations(R.anim.enter_anim, R.anim.enter_anim, R.anim.enter_anim, R.anim.enter_anim)
             getFragmentManager().beginTransaction()
                     .replace(R.id.fragment, fragment, FullscreenFragment.FRAGMENT_TAG)
-                    .addToBackStack(FullscreenFragment.FRAGMENT_TAG).commit();
+                    .addToBackStack(null).commit();
         }
     }
 
     @Override
-    public void onLongClicked(int position, String data, View view) {
+    public void onLongClicked(final int position, String data, View view) {
         if (mActionMode == null) {
-            mGridAdapter.setSelected(data, view, position);
-            getActivity().startActionMode(new Callback() {
+            mActionMode = getActivity().startActionMode(new ActionMode.Callback() {
                 @Override
-                public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
-                    actionMode.getMenuInflater().inflate(R.menu.menu_actions, menu);
-                    mActionMode = actionMode;
-                    mActionMode.setTitle(mGridAdapter.getSelected().size() + " items selected");
+                public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                    mode.getMenuInflater().inflate(R.menu.menu_actions, menu);
+                    getActivity().getActionBar().hide();
                     return true;
                 }
 
                 @Override
-                public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
+                public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
                     return false;
                 }
 
                 @Override
-                public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
-                    switch (menuItem.getItemId()) {
+                public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                    switch (item.getItemId()) {
                         case R.id.action_delete:
-                            HashMap<String, Integer> selectedList = mGridAdapter.getSelected();
-                            Collection<Integer> positions = selectedList.values();
-                            for (int position : positions) {
-                                Log.d("MATS", "position=" + position);
+                            Collection<Integer> values = mGridAdapter.getSelected().values();
+                            for (int position : values) {
                                 mGridAdapter.notifyItemRemoved(position);
                             }
-//                            mActionMode.finish();
+                            mActionMode.finish();
                             return true;
                         case R.id.action_share:
-                            break;
+                            return true;
                     }
                     return false;
                 }
 
                 @Override
-                public void onDestroyActionMode(ActionMode actionMode) {
-                    mGridAdapter.clearAllSelected();
+                public void onDestroyActionMode(ActionMode mode) {
                     mActionMode = null;
+                    mGridAdapter.clearAllSelected();
+                    getActivity().getActionBar().show();
                 }
             });
+            onClicked(position, data, view);
         }
     }
 }

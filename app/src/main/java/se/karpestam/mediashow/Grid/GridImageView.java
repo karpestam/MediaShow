@@ -1,6 +1,8 @@
 package se.karpestam.mediashow.Grid;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.ColorFilter;
 import android.graphics.PorterDuff;
 import android.util.AttributeSet;
 import android.widget.ImageView;
@@ -21,7 +23,7 @@ public class GridImageView extends ImageView {
     @Override
     public void setSelected(boolean selected) {
         if (selected) {
-            setColorFilter(0x9926A69A, PorterDuff.Mode.SRC_ATOP);
+            setColorFilter(0x99FFFFFF, PorterDuff.Mode.SRC_ATOP);
         } else {
             clearColorFilter();
         }
