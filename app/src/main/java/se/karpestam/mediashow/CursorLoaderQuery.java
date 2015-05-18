@@ -23,11 +23,11 @@ public abstract class CursorLoaderQuery {
 
     public static CursorLoaderQuery getCursorLoaderQuery(int number) {
         switch (number) {
-            case 1:
+            case 0:
                 return new PhotosAndVideosQuery();
-            case 2:
+            case 1:
                 return new PhotosQuery();
-            case 3:
+            case 2:
                 return new VideosQuery();
             default:
                 return new PhotosAndVideosQuery();

@@ -1,33 +1,41 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".MainActivity">
+             xmlns:tools="http://schemas.android.com/tools"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             tools:context=".MainActivity">
 
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"/>
 
     <Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top"
-        android:background="?android:attr/colorPrimary"
-        android:minHeight="?android:attr/actionBarSize"></Toolbar>
-
-    <Toolbar
-        android:id="@+id/settings_toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="?android:attr/actionBarSize"
         android:layout_gravity="bottom"
         android:layout_margin="16dp"
         android:background="@drawable/rounded_corner"
-        android:minHeight="?android:attr/actionBarSize"
-        android:visibility="gone">
+        android:elevation="10dp"
+        android:minHeight="?android:attr/actionBarSize">
+
+        <ImageButton
+            android:id="@+id/selection_cancel_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:drawable/ic_menu_close_clear_cancel"
+            android:visibility="gone"/>
+
+        <Spinner
+            android:id="@+id/toolbar_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:entries="@array/sort_arrays"
+            android:spinnerMode="dropdown">
+        </Spinner>
     </Toolbar>
+
 </FrameLayout>
 
 

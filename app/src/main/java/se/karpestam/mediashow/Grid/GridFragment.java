@@ -21,11 +21,16 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.FrameLayout.LayoutParams;
+import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.Toolbar;
+import android.widget.Toolbar.OnMenuItemClickListener;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -38,7 +43,7 @@ import se.karpestam.mediashow.R;
 
 
 public class GridFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
-        OnSharedPreferenceChangeListener, SelectionListener {
+        OnSharedPreferenceChangeListener, SelectionListener, OnMenuItemClickListener {
 
     public static final String FRAGMENT_TAG = GridFragment.class.getSimpleName();
     private Context mContext;
@@ -48,22 +53,20 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
     private GridAdapter mGridAdapter;
     private WindowManager mWindowManager;
     private Toolbar mToolbar;
-    private Toolbar mActionToolbar;
-    private ActionMode mActionMode;
+    private boolean mIsInSelectionMode;
+    private ImageButton mCancelSelectionButton;
+    private Spinner mSpinner;
+    private CursorLoaderQuery mCursorLoaderQuery;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setEnterTransition(new Explode());
-        setExitTransition(new Explode());
-        setReturnTransition(new Explode());
-        setReenterTransition(new Explode());
         setHasOptionsMenu(true);
         if (savedInstanceState != null) {
             mLastFirstVisibleItem = savedInstanceState.getInt("position");
         }
         mContext = getActivity().getApplicationContext();
-        mWindowManager = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
+        mWindowManager = (WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE);
         int numColumns = mContext.getResources().getInteger(R.integer.grid_columns);
         final Point point = new Point();
         mWindowManager.getDefaultDisplay().getSize(point);
@@ -72,7 +75,7 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+            Bundle savedInstanceState) {
 //        setExitTransition(new Explode());
 //        setEnterTransition(new Explode());
 //        setReturnTransition(new Explode());
@@ -84,7 +87,10 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
+        mCursorLoaderQuery = CursorLoaderQuery.getCursorLoaderQuery(
+                mContext.getSharedPreferences(Constants.SHARED_PREFS_FILE_NAME,
+                        Context.MODE_PRIVATE).getInt(Constants.PREFS_FILTER, 0));
+        mRecyclerView = (RecyclerView)view.findViewById(R.id.recycler_view);
         mRecyclerView.addOnScrollListener(new OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -93,9 +99,11 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
                         .findFirstVisibleItemPositions(null);
 
                 if (currentFirstVisibleItem[0] > mLastFirstVisibleItem) {
-//                    getActivity().getActionBar().hide();
+                    mToolbar.setVisibility(View.GONE);
+//                    mToolbar.animate().setDuration(100).alpha(0f).start();
                 } else if (currentFirstVisibleItem[0] < mLastFirstVisibleItem) {
-//                    getActivity().getActionBar().show();
+//                    mToolbar.animate().setDuration(100).alpha(1.0f).start();
+                    mToolbar.setVisibility(View.VISIBLE);
                 }
                 mLastFirstVisibleItem = currentFirstVisibleItem[0];
             }
@@ -106,21 +114,40 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
         mGridLayoutManager
                 .setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
         mRecyclerView.setLayoutManager(mGridLayoutManager);
-        mToolbar = (Toolbar) view.findViewById(R.id.toolbar);
-        getActivity().setActionBar(mToolbar);
-        mActionToolbar = (Toolbar) view.findViewById(R.id.settings_toolbar);
+        mToolbar = (Toolbar)view.findViewById(R.id.toolbar);
+        mToolbar.inflateMenu(R.menu.menu_main);
+        mToolbar.setOnMenuItemClickListener(this);
+        mSpinner = (Spinner)view.findViewById(R.id.toolbar_spinner);
+        mSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                mContext.getSharedPreferences(Constants.SHARED_PREFS_FILE_NAME,
+                        Context.MODE_PRIVATE).edit().putInt(Constants.PREFS_FILTER, i).apply();
+                mCursorLoaderQuery = CursorLoaderQuery.getCursorLoaderQuery(i);
+                getLoaderManager().restartLoader(0, null, GridFragment.this);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+        mCancelSelectionButton = (ImageButton)view.findViewById(R.id.selection_cancel_button);
+        mCancelSelectionButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                leaveSelectionMode();
+            }
+        });
         getLoaderManager().initLoader(0, null, this);
     }
 
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        CursorLoaderQuery cursorLoaderQuery = CursorLoaderQuery.getCursorLoaderQuery(
-                mContext.getSharedPreferences(Constants.SHARED_PREFS_FILE_NAME,
-                        Context.MODE_PRIVATE).getInt(Constants.PREFS_FILTER, 0));
-        return new CursorLoader(mContext, cursorLoaderQuery.getUri(),
-                cursorLoaderQuery.getProjection(), cursorLoaderQuery.getSelection(),
-                cursorLoaderQuery.getSelectionArgs(), cursorLoaderQuery.getSortOrder());
+        return new CursorLoader(mContext, mCursorLoaderQuery.getUri(),
+                mCursorLoaderQuery.getProjection(), mCursorLoaderQuery.getSelection(),
+                mCursorLoaderQuery.getSelectionArgs(), mCursorLoaderQuery.getSortOrder());
     }
 
     @Override
@@ -160,44 +187,6 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_main, menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_add:
-                int columns = mGridLayoutManager.getSpanCount() + 1;
-                mGridAdapter.setColumns(columns);
-                mGridLayoutManager.setSpanCount(columns);
-                mGridAdapter.notifyDataSetChanged();
-                return true;
-            case R.id.action_reduce:
-                int columnsToReduce = mGridLayoutManager.getSpanCount() - 1;
-                mGridAdapter.setColumns(columnsToReduce);
-                mGridLayoutManager.setSpanCount(columnsToReduce);
-                mGridAdapter.notifyDataSetChanged();
-                return true;
-            case R.id.action_settings:
-                return true;
-            case R.id.action_light:
-                mContext.getSharedPreferences(Constants.SHARED_PREFS_FILE_NAME, Context.MODE_PRIVATE).edit().putInt(Constants.THEME, 1).apply();
-                getActivity().recreate();
-                return true;
-            case R.id.action_dark:
-                mContext.getSharedPreferences(Constants.SHARED_PREFS_FILE_NAME, Context.MODE_PRIVATE).edit().putInt(Constants.THEME, 2).apply();
-                getActivity().recreate();
-                return true;
-            case R.id.action_default:
-                mContext.getSharedPreferences(Constants.SHARED_PREFS_FILE_NAME, Context.MODE_PRIVATE).edit().putInt(Constants.THEME, 0).apply();
-                getActivity().recreate();
-                return true;
-        }
-        return false;
-    }
-
-    @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putInt("position", mLastFirstVisibleItem);
         super.onSaveInstanceState(outState);
@@ -215,18 +204,16 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
 
     @Override
     public void onClicked(int position, String data, View view) {
-        if (mActionMode != null) {
+        if (mIsInSelectionMode) {
             mGridAdapter.setSelected(data, view, position);
-            mActionMode.setTitle(mGridAdapter.getSelected().size() + " items selected");
+            mToolbar.setSubtitle(mGridAdapter.getSelected().size() + " items selected");
         } else {
             Fragment fragment = new FullscreenFragment();
             Bundle bundle = new Bundle();
             bundle.putInt(FullscreenFragment.CURSOR_START_POSITION, position);
             fragment.setArguments(bundle);
-//            fragment.setEnterTransition(new Explode());
-//            fragment.setExitTransition(new Explode());
-//            fragment.setReenterTransition(new Explode());
-//            setCustomAnimations(R.anim.enter_anim, R.anim.enter_anim, R.anim.enter_anim, R.anim.enter_anim)
+//            setCustomAnimations(R.anim.enter_anim, R.anim.enter_anim, R.anim.enter_anim, R
+// .anim.enter_anim)
             getFragmentManager().beginTransaction()
                     .replace(R.id.fragment, fragment, FullscreenFragment.FRAGMENT_TAG)
                     .addToBackStack(null).commit();
@@ -235,44 +222,72 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
 
     @Override
     public void onLongClicked(final int position, String data, View view) {
-        if (mActionMode == null) {
-            mActionMode = getActivity().startActionMode(new ActionMode.Callback() {
-                @Override
-                public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-                    mode.getMenuInflater().inflate(R.menu.menu_actions, menu);
-                    getActivity().getActionBar().hide();
-                    return true;
-                }
-
-                @Override
-                public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-                    return false;
-                }
-
-                @Override
-                public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-                    switch (item.getItemId()) {
-                        case R.id.action_delete:
-                            Collection<Integer> values = mGridAdapter.getSelected().values();
-                            for (int position : values) {
-                                mGridAdapter.notifyItemRemoved(position);
-                            }
-                            mActionMode.finish();
-                            return true;
-                        case R.id.action_share:
-                            return true;
-                    }
-                    return false;
-                }
-
-                @Override
-                public void onDestroyActionMode(ActionMode mode) {
-                    mActionMode = null;
-                    mGridAdapter.clearAllSelected();
-                    getActivity().getActionBar().show();
-                }
-            });
+        if (!mIsInSelectionMode) {
+            enterSelectionMode();
             onClicked(position, data, view);
         }
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem menuItem) {
+        switch (menuItem.getItemId()) {
+            case R.id.action_delete:
+                leaveSelectionMode();
+                return true;
+            case R.id.action_share:
+                leaveSelectionMode();
+                return true;
+//            case R.id.action_add:
+//                int columns = mGridLayoutManager.getSpanCount() + 1;
+//                mGridAdapter.setColumns(columns);
+//                mGridLayoutManager.setSpanCount(columns);
+//                mGridAdapter.notifyDataSetChanged();
+//                return true;
+//            case R.id.action_reduce:
+//                int columnsToReduce = mGridLayoutManager.getSpanCount() - 1;
+//                mGridAdapter.setColumns(columnsToReduce);
+//                mGridLayoutManager.setSpanCount(columnsToReduce);
+//                mGridAdapter.notifyDataSetChanged();
+//                return true;
+            case R.id.action_settings:
+
+//                LayoutParams params = (LayoutParams)mToolbar.getLayoutParams();
+//                params.height
+                return true;
+//            case R.id.action_light:
+//                mContext.getSharedPreferences(Constants.SHARED_PREFS_FILE_NAME,
+//                        Context.MODE_PRIVATE).edit().putInt(Constants.THEME, 1).apply();
+//                getActivity().recreate();
+//                return true;
+//            case R.id.action_dark:
+//                mContext.getSharedPreferences(Constants.SHARED_PREFS_FILE_NAME,
+//                        Context.MODE_PRIVATE).edit().putInt(Constants.THEME, 2).apply();
+//                getActivity().recreate();
+//                return true;
+//            case R.id.action_default:
+//                mContext.getSharedPreferences(Constants.SHARED_PREFS_FILE_NAME,
+//                        Context.MODE_PRIVATE).edit().putInt(Constants.THEME, 0).apply();
+//                getActivity().recreate();
+//                return true;
+        }
+        return false;
+    }
+
+    private void enterSelectionMode() {
+        mToolbar.findViewById(R.id.toolbar_spinner).setVisibility(View.GONE);
+        mCancelSelectionButton.setVisibility(View.VISIBLE);
+        mToolbar.getMenu().clear();
+        mToolbar.inflateMenu(R.menu.menu_actions);
+        mIsInSelectionMode = true;
+    }
+
+    private void leaveSelectionMode() {
+        mCancelSelectionButton.setVisibility(View.GONE);
+        mGridAdapter.clearAllSelected();
+        mToolbar.findViewById(R.id.toolbar_spinner).setVisibility(View.VISIBLE);
+        mToolbar.setSubtitle("");
+        mToolbar.getMenu().clear();
+        mToolbar.inflateMenu(R.menu.menu_main);
+        mIsInSelectionMode = false;
     }
 }
