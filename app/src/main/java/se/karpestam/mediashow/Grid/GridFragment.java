@@ -66,7 +66,7 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
             mLastFirstVisibleItem = savedInstanceState.getInt("position");
         }
         mContext = getActivity().getApplicationContext();
-        mWindowManager = (WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE);
+        mWindowManager = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
         int numColumns = mContext.getResources().getInteger(R.integer.grid_columns);
         final Point point = new Point();
         mWindowManager.getDefaultDisplay().getSize(point);
@@ -75,7 +75,7 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+                             Bundle savedInstanceState) {
 //        setExitTransition(new Explode());
 //        setEnterTransition(new Explode());
 //        setReturnTransition(new Explode());
@@ -87,10 +87,11 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mCursorLoaderQuery = CursorLoaderQuery.getCursorLoaderQuery(
-                mContext.getSharedPreferences(Constants.SHARED_PREFS_FILE_NAME,
-                        Context.MODE_PRIVATE).getInt(Constants.PREFS_FILTER, 0));
-        mRecyclerView = (RecyclerView)view.findViewById(R.id.recycler_view);
+        final int cursorLoaderQuery = mContext.getSharedPreferences(Constants.SHARED_PREFS_FILE_NAME,
+                Context.MODE_PRIVATE).getInt(Constants.PREFS_FILTER, 0);
+        mCursorLoaderQuery = CursorLoaderQuery.getCursorLoaderQuery(cursorLoaderQuery
+        );
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
         mRecyclerView.addOnScrollListener(new OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -114,13 +115,14 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
         mGridLayoutManager
                 .setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
         mRecyclerView.setLayoutManager(mGridLayoutManager);
-        mToolbar = (Toolbar)view.findViewById(R.id.toolbar);
+        mToolbar = (Toolbar) view.findViewById(R.id.toolbar);
         mToolbar.inflateMenu(R.menu.menu_main);
         mToolbar.setOnMenuItemClickListener(this);
-        mSpinner = (Spinner)view.findViewById(R.id.toolbar_spinner);
+        mSpinner = (Spinner) view.findViewById(R.id.toolbar_spinner);
         mSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                Log.d("MATS", "onItemSelected " + i);
                 mContext.getSharedPreferences(Constants.SHARED_PREFS_FILE_NAME,
                         Context.MODE_PRIVATE).edit().putInt(Constants.PREFS_FILTER, i).apply();
                 mCursorLoaderQuery = CursorLoaderQuery.getCursorLoaderQuery(i);
@@ -132,7 +134,8 @@ public class GridFragment extends Fragment implements LoaderManager.LoaderCallba
 
             }
         });
-        mCancelSelectionButton = (ImageButton)view.findViewById(R.id.selection_cancel_button);
+        mSpinner.setSelection(cursorLoaderQuery);
+        mCancelSelectionButton = (ImageButton) view.findViewById(R.id.selection_cancel_button);
         mCancelSelectionButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
