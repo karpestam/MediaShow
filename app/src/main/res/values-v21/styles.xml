@@ -7,37 +7,26 @@
         <!--<item name="android:windowTranslucentNavigation">@bool/navigation_translucent</item>-->
     </style>
 
-    <style name="AppThemeDefault.Fullscreen" parent="AppThemeDefault">
-        <item name="android:windowTranslucentNavigation">true</item>
-        <item name="android:windowTranslucentStatus">true</item>
-    </style>
 
     <style name="AppThemeLight" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:windowActionModeOverlay">true</item>
         <item name="android:actionModeBackground">?android:attr/colorPrimary</item>
-        <!-- enable window content transitions -->
-        <!--<item name="android:colorPrimary">#4DB6AC</item>-->
-        <!--<item name="android:colorPrimaryDark">#26A69A</item>-->
-        <!--<item name="android:navigationBarColor">#ff004b4f</item>-->
-        <!--<item name="android:windowContentTransitions">true</item>-->
-        <!--<item name="android:windowAllowEnterTransitionOverlap">true</item>-->
-        <!--<item name="android:windowTranslucentStatus">true</item>-->
-        <!--<item name="android:windowTranslucentNavigation">@bool/navigation_translucent</item>-->
-        <!--<item name="android:windowDrawsSystemBarBackgrounds">true</item>-->
-        <!--<item name="android:windowSharedElementsUseOverlay">true</item>-->
-        <!--<item name="android:actionBarStyle">@style/ActionBarStyle</item>-->
-    </style>
-
-    <style name="AppThemeLight.Fullscreen" parent="AppThemeLight">
-        <!--<item name="android:windowTranslucentNavigation">true</item>-->
-        <item name="android:windowTranslucentStatus">true</item>
-        <item name="android:navigationBarColor">#55FFFFFF</item>
     </style>
 
     <style name="AppThemeDark" parent="android:Theme.Material.NoActionBar">
         <item name="android:windowActionModeOverlay">true</item>
         <item name="android:actionModeBackground">?android:attr/colorPrimary</item>
         <!--<item name="android:windowTranslucentNavigation">@bool/navigation_translucent</item>-->
+    </style>
+
+    <style name="AppThemeDefault.Fullscreen" parent="AppThemeDefault">
+        <item name="android:windowTranslucentNavigation">true</item>
+        <item name="android:windowTranslucentStatus">true</item>
+    </style>
+
+    <style name="AppThemeLight.Fullscreen" parent="android:Theme.Material.Light.NoActionBar.TranslucentDecor">
+        <!--<item name="android:windowTranslucentNavigation">true</item>-->
+        <!--<item name="android:windowTranslucentStatus">true</item>-->
     </style>
 
     <style name="AppThemeDark.Fullscreen" parent="AppThemeDark">

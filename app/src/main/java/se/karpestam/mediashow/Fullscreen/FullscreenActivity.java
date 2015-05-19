@@ -11,6 +11,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
+import android.view.View;
 import android.view.WindowManager;
 
 import se.karpestam.mediashow.Constants;
@@ -29,7 +30,7 @@ public class FullscreenActivity extends FragmentActivity implements LoaderManage
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
         mCursorLoaderQuery = CursorLoaderQuery.getCursorLoaderQuery(
                 getSharedPreferences(Constants.SHARED_PREFS_FILE_NAME, Context.MODE_PRIVATE)
                         .getInt(Constants.PREFS_FILTER, 0));
@@ -38,9 +39,9 @@ public class FullscreenActivity extends FragmentActivity implements LoaderManage
         } else {
             mStartPosition = getIntent().getIntExtra(CURSOR_START_POSITION, 0);
         }
-        mWindowManager = (WindowManager)getSystemService(Context.WINDOW_SERVICE);
+        mWindowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
         setContentView(R.layout.fullscreen_activity);
-        mViewPager = (ViewPager)findViewById(R.id.pager);
+        mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setOffscreenPageLimit(1);
         mViewPager.setPageTransformer(true, new DepthPageTransformer());
         mViewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());

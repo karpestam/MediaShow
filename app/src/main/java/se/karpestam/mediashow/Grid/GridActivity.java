@@ -57,21 +57,19 @@ public class GridActivity extends Activity implements LoaderManager.LoaderCallba
         if (savedInstanceState != null) {
             mLastFirstVisibleItem = savedInstanceState.getInt("position");
         }
-        mWindowManager = (WindowManager)getSystemService(Context.WINDOW_SERVICE);
+        mWindowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
         int numColumns = getResources().getInteger(R.integer.grid_columns);
         final Point point = new Point();
         mWindowManager.getDefaultDisplay().getSize(point);
         mGridAdapter = new GridAdapter(getApplicationContext(), point.x, point.y, numColumns,
                 this);
-
         setContentView(R.layout.grid_activity);
-
         final int cursorLoaderQuery = getSharedPreferences(Constants.SHARED_PREFS_FILE_NAME,
                 Context.MODE_PRIVATE).getInt(Constants.PREFS_FILTER, 0);
         final int theme = getSharedPreferences(Constants.SHARED_PREFS_FILE_NAME,
                 Context.MODE_PRIVATE).getInt(Constants.THEME, 0);
         mCursorLoaderQuery = CursorLoaderQuery.getCursorLoaderQuery(cursorLoaderQuery);
-        mRecyclerView = (RecyclerView)findViewById(R.id.recycler_view);
+        mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         mRecyclerView.addOnScrollListener(new OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -93,8 +91,8 @@ public class GridActivity extends Activity implements LoaderManager.LoaderCallba
         mGridLayoutManager
                 .setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
         mRecyclerView.setLayoutManager(mGridLayoutManager);
-        setActionBar((Toolbar)findViewById(R.id.toolbar));
-        mSpinner = (Spinner)findViewById(R.id.toolbar_spinner);
+        setActionBar((Toolbar) findViewById(R.id.toolbar));
+        mSpinner = (Spinner) findViewById(R.id.toolbar_spinner);
 
         mSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
             @Override
@@ -105,8 +103,8 @@ public class GridActivity extends Activity implements LoaderManager.LoaderCallba
                 mCursorLoaderQuery = CursorLoaderQuery.getCursorLoaderQuery(i);
                 getLoaderManager().restartLoader(0, null, GridActivity.this);
                 if (view != null) {
-                    getActionBar().setTitle(((TextView)view).getText());
-                    ((TextView)view).setText("");
+                    getActionBar().setTitle(((TextView) view).getText());
+                    ((TextView) view).setText("");
                 }
             }
 

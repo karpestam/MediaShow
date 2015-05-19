@@ -13,6 +13,7 @@ import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -25,7 +26,7 @@ import se.karpestam.mediashow.Media.BitmapResultListener;
 import se.karpestam.mediashow.Media.BitmapResult;
 import se.karpestam.mediashow.R;
 
-public class FullscreenImageFragment extends Fragment implements BitmapResultListener {
+public class FullscreenImageFragment extends Fragment implements BitmapResultListener, View.OnClickListener{
 
     private final String mListenerId = toString();
 
@@ -53,6 +54,7 @@ public class FullscreenImageFragment extends Fragment implements BitmapResultLis
                         new BitmapRequest(data, orientation, imageView, mListenerId, true, point.x,
                                 point.y, mediaType));
         imageView.setImageBitmap(bitmap);
+        view.setOnClickListener(this);
     }
 
     @Override
@@ -68,6 +70,16 @@ public class FullscreenImageFragment extends Fragment implements BitmapResultLis
         super.onDestroyView();
         BitmapRequester.getInstance(getActivity().getApplicationContext())
                 .removeListener(mListenerId);
+    }
+
+    @Override
+    public void onClick(View v) {
+        View decorView = getActivity().getWindow().getDecorView();
+        if (decorView.getSystemUiVisibility() != 0) {
+//            decorView.setSystemUiVisibility(0);
+        } else {
+//            decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+        }
     }
 
     private Point getScreenSize() {
