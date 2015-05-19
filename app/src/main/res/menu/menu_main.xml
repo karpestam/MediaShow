@@ -4,5 +4,17 @@
         android:id="@+id/action_settings"
         android:title="Settings"
         android:icon="@android:drawable/ic_menu_more"
-        android:orderInCategory="100" android:showAsAction="always"/>
+        android:orderInCategory="100" android:showAsAction="never"/>
+    <item
+        android:id="@+id/theme_default"
+        android:title="Default theme"
+        android:orderInCategory="100" android:showAsAction="never"/>
+    <item
+        android:id="@+id/theme_light"
+        android:title="Light theme"
+        android:orderInCategory="100" android:showAsAction="never"/>
+    <item
+        android:id="@+id/theme_dark"
+        android:title="Dark theme"
+        android:orderInCategory="100" android:showAsAction="never"/>
 </menu>

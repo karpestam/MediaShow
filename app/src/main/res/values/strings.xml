@@ -11,8 +11,8 @@
     </string-array>
     <string name="theme_prompt">Choose a theme</string>
     <string-array name="theme_arrays">
-        <item>Default</item>
-        <item>Dark</item>
-        <item>Light</item>
+        <item>Default theme</item>
+        <item>Light theme</item>
+        <item>Dark theme</item>
     </string-array>
 </resources>

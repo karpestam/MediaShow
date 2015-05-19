@@ -6,15 +6,15 @@ import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.util.Log;
 
-public class FullscreenAdapter extends FragmentStatePagerAdapter {
+import se.karpestam.mediashow.CursorLoaderQuery;
+
+class ViewPagerAdapter extends FragmentStatePagerAdapter {
 
     private Cursor mCursor;
 
-    public FullscreenAdapter(Cursor cursor, FragmentManager fragmentManager) {
+    public ViewPagerAdapter(FragmentManager fragmentManager) {
         super(fragmentManager);
-        mCursor = cursor;
     }
 
     @Override
@@ -51,5 +51,10 @@ public class FullscreenAdapter extends FragmentStatePagerAdapter {
     @Override
     public int getCount() {
         return mCursor.getCount();
+    }
+
+    public void setCursor(Cursor cursor) {
+        mCursor = cursor;
+        notifyDataSetChanged();
     }
 }
