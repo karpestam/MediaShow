@@ -1,8 +1,9 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                tools:context=".MainActivity">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              tools:context=".MainActivity">
 
     <Toolbar
         android:id="@+id/toolbar"
@@ -11,58 +12,28 @@
         android:background="?android:attr/colorPrimary"
         android:elevation="10dp"
         android:minHeight="?android:attr/actionBarSize">
-
-        <Spinner
-            android:id="@+id/toolbar_spinner"
-            android:layout_width="30dp"
-            android:layout_height="match_parent"
-            android:entries="@array/sort_arrays"
-            android:spinnerMode="dropdown">
-        </Spinner>
     </Toolbar>
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recycler_view"
+    <android.support.v4.widget.DrawerLayout
+        android:id="@+id/drawer_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/toolbar"/>
+        android:layout_height="match_parent">
 
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/drawer_list"
+            android:layout_width="240dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            android:background="?android:attr/colorBackground"
+            android:divider="?android:attr/colorPrimaryDark"
+            android:dividerHeight="8dp"
+            android:drawSelectorOnTop="true"
+            android:headerDividersEnabled="true"/>
 
-    <!--<LinearLayout-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_above="@id/toolbar"-->
-    <!--android:layout_marginEnd="16dp"-->
-    <!--android:layout_marginStart="16dp"-->
-    <!--android:background="@drawable/rounded_corner"-->
-    <!--android:orientation="vertical">-->
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/grid_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
 
-    <!--<LinearLayout-->
-    <!--android:id="@+id/settings_layout"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="?android:attr/actionBarSize"-->
-    <!--android:orientation="horizontal"-->
-    <!--android:visibility="gone">-->
-
-    <!--<SeekBar-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_gravity="center"-->
-    <!--android:layout_weight="1"-->
-    <!--/>-->
-
-    <!--<Spinner-->
-    <!--android:id="@+id/theme_spinner"-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="match_parent"-->
-    <!--android:layout_weight="0"-->
-    <!--android:entries="@array/theme_arrays"-->
-    <!--android:spinnerMode="dropdown"/>-->
-    <!--</LinearLayout>-->
-
-
-    <!--</LinearLayout>-->
-</RelativeLayout>
-
-
-    <!--android:paddingTop="?android:attr/actionBarSize"--><!--android:clipToPadding="false"-->
+    </android.support.v4.widget.DrawerLayout>
+</LinearLayout>

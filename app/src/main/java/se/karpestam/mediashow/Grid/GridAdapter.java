@@ -7,15 +7,12 @@ import android.provider.MediaStore;
 import android.provider.MediaStore.Files.FileColumns;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import se.karpestam.mediashow.Media.BitmapRequester;
 import se.karpestam.mediashow.Media.BitmapRequest;
@@ -33,31 +30,31 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> im
     private final int mScreenHeight;
     private int mNumColumns;
     private int mPreviousPosition;
-    private SelectionListener mSelectionListener;
+    private GridClickListener mGridClickListener;
     private HashMap<String, Integer> mSelectedList;
 
     public GridAdapter(Context context, int screenWidth, int screenHeight, int numColumns,
-                       SelectionListener selectionListener) {
+                       GridClickListener gridClickListener) {
         super();
         mContext = context;
         mScreenWidth = screenWidth;
         mScreenHeight = screenHeight;
         mNumColumns = numColumns;
-        mSelectionListener = selectionListener;
+        mGridClickListener = gridClickListener;
         mSelectedList = new HashMap<>();
         BitmapRequester.getInstance(context).addListener(mListenerId, this);
     }
 
-    interface SelectionListener {
+    interface GridClickListener {
         void onClicked(int position, String data, View view);
 
         void onLongClicked(int position, String data, View view);
     }
 
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-        View gridItem = LayoutInflater.from(viewGroup.getContext())
-                .inflate(R.layout.grid_item, viewGroup, false);
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View gridItem = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.grid_item, parent, false);
         return new ViewHolder(gridItem);
     }
 
@@ -206,12 +203,12 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> im
 
         @Override
         public void onClick(View v) {
-            mSelectionListener.onClicked(mPosition, mData, mImageView);
+            mGridClickListener.onClicked(mPosition, mData, mImageView);
         }
 
         @Override
         public boolean onLongClick(View view) {
-            mSelectionListener.onLongClicked(mPosition, mData, mImageView);
+            mGridClickListener.onLongClicked(mPosition, mData, mImageView);
             return true;
         }
 
