@@ -1,27 +1,22 @@
 package se.karpestam.mediashow.Grid;
 
 import android.app.LoaderManager;
-import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.RecyclerView.ViewHolder;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import se.karpestam.mediashow.CursorLoaderQuery;
 import se.karpestam.mediashow.R;
 
-public class DrawerListAdapter extends RecyclerView.Adapter implements LoaderManager
+public class DrawerListAdapter extends RecyclerView.Adapter<DrawerListAdapter.ItemViewHolder> implements
+        LoaderManager
         .LoaderCallbacks<Cursor> {
 
-    private String[] mData = new String[]{"All", "Photos and videos", "Photos", "Videos",
-            "Folders"};
+    private String[] mData = new String[]{"Photos and videos", "Photos", "Videos"};
 
     private static final int VIEW_TYPE_HEADER = 1;
     private static final int VIEW_TYPE_ITEM = 2;
@@ -32,42 +27,58 @@ public class DrawerListAdapter extends RecyclerView.Adapter implements LoaderMan
     }
 
     interface DrawerItemClickListener {
-        void onDrawerItemClicked(CursorLoaderQuery cursorLoaderQuery);
+        void onDrawerItemClicked(int position);
     }
 
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         switch (viewType) {
-            case VIEW_TYPE_HEADER:
-                return new HeaderViewHolder(LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.drawer_header, parent, false));
+            case VIEW_TYPE_HEADER: {
+//                View view = LayoutInflater.from(parent.getContext())
+//                        .inflate(R.layout.drawer_header, parent, false);
+                View view = parent.inflate(parent.getContext(), R.layout.drawer_header, null);
+                ItemViewHolder itemViewHolder = new ItemViewHolder(view);
+                itemViewHolder.textView = (TextView)view.findViewById(R.id.item_text);
+                return itemViewHolder;
+            }
+            case VIEW_TYPE_ITEM: {
+//                View view = LayoutInflater.from(parent.getContext())
+//                        .inflate(R.layout.drawer_header, parent, false);
+                View view = parent.inflate(parent.getContext(), R.layout.drawer_item, null);
+                ItemViewHolder itemViewHolder = new ItemViewHolder(view);
+                itemViewHolder.textView = (TextView)view.findViewById(R.id.item_text);
+                return itemViewHolder;
+            }
             default:
-                return new ItemViewHolder(LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.drawer_item, parent, false));
+                throw new RuntimeException("Not a correct view type.");
         }
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(ItemViewHolder holder, final int position) {
         switch (holder.getItemViewType()) {
             case VIEW_TYPE_HEADER:
-                ((HeaderViewHolder)holder).bindView(mData[position]);
+                holder.textView.setText(mData[position]);
+                break;
+            case VIEW_TYPE_ITEM:
+                holder.textView.setText(mData[position]);
+                holder.itemView.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        mDrawerItemClickListener.onDrawerItemClicked(position);
+                    }
+                });
                 break;
             default:
-                ((ItemViewHolder)holder).bindView(mData[position]);
-                break;
+                throw new RuntimeException("Not a correct view type.");
         }
     }
 
     @Override
     public int getItemViewType(int position) {
-        switch (position) {
-            case 0:
-            case 4:
-                return VIEW_TYPE_HEADER;
-            default:
-                return VIEW_TYPE_ITEM;
-        }
+        return VIEW_TYPE_ITEM;
+//        switch (position) {
+//        }
     }
 
     @Override
@@ -90,44 +101,28 @@ public class DrawerListAdapter extends RecyclerView.Adapter implements LoaderMan
 
     }
 
-    static class HeaderViewHolder extends RecyclerView.ViewHolder {
-        private TextView mTextView;
 
-        public HeaderViewHolder(View v) {
-            super(v);
-            mTextView = (TextView)v.findViewById(R.id.drawer_header_text);
-        }
-
-        void bindView(String text) {
-            mTextView.setText(text);
-        }
-    }
-
-    class ItemViewHolder extends RecyclerView.ViewHolder implements OnClickListener {
-        private TextView mTextView;
+    static class ItemViewHolder extends RecyclerView.ViewHolder implements OnClickListener {
+        TextView textView;
 
         public ItemViewHolder(View v) {
             super(v);
-            mTextView = (TextView)v.findViewById(R.id.drawer_item_text);
-            mTextView.setOnClickListener(this);
+//            mTextView.setOnClickListener(this);
         }
 
         @Override
         public void onClick(View view) {
-            Log.d("MATS", "onClick");
-            CursorLoaderQuery cursorLoaderQuery = null;
-            if (mTextView.getText().equals(mData[1])) {
-                cursorLoaderQuery = CursorLoaderQuery.getCursorLoaderQuery(0);
-            } else if (mTextView.getText().equals(mData[2])) {
-                cursorLoaderQuery = CursorLoaderQuery.getCursorLoaderQuery(1);
-            } else if (mTextView.getText().equals(mData[3])) {
-                cursorLoaderQuery = CursorLoaderQuery.getCursorLoaderQuery(3);
-            }
-            mDrawerItemClickListener.onDrawerItemClicked(cursorLoaderQuery);
+//            Log.d("MATS", "onClick");
+//            CursorLoaderQuery cursorLoaderQuery = null;
+//            if (mTextView.getText().equals(mData[1])) {
+//                cursorLoaderQuery = CursorLoaderQuery.getCursorLoaderQuery(0);
+//            } else if (mTextView.getText().equals(mData[2])) {
+//                cursorLoaderQuery = CursorLoaderQuery.getCursorLoaderQuery(1);
+//            } else if (mTextView.getText().equals(mData[3])) {
+//                cursorLoaderQuery = CursorLoaderQuery.getCursorLoaderQuery(3);
+//            }
+//            mDrawerItemClickListener.onDrawerItemClicked(cursorLoaderQuery);
         }
 
-        void bindView(String text) {
-            mTextView.setText(text);
-        }
     }
 }

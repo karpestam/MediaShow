@@ -296,10 +296,22 @@ public class GridActivity extends Activity implements LoaderManager.LoaderCallba
     }
 
     @Override
-    public void onDrawerItemClicked(CursorLoaderQuery cursorLoaderQuery) {
+    public void onDrawerItemClicked(int position) {
         Log.d("MATS", "onDrawerItemClicked");
-        mCursorLoaderQuery = cursorLoaderQuery;
+        mCursorLoaderQuery = CursorLoaderQuery.getCursorLoaderQuery(position);
         getLoaderManager().restartLoader(0, null, this);
+        mDrawerLayout.closeDrawer(Gravity.START);
+        switch (position) {
+            case 0:
+                getActionBar().setTitle("Photos and videos");
+                break;
+            case 1:
+                getActionBar().setTitle("Photos");
+                break;
+            case 2:
+                getActionBar().setTitle("Videos");
+                break;
+        }
     }
 
     @Override
