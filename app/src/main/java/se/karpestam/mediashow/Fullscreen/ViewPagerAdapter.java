@@ -7,8 +7,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
-import se.karpestam.mediashow.CursorLoaderQuery;
-
 class ViewPagerAdapter extends FragmentStatePagerAdapter {
 
     private Cursor mCursor;

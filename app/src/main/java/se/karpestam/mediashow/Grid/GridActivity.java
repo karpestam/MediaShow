@@ -7,12 +7,11 @@ import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Resources.Theme;
 import android.database.Cursor;
 import android.graphics.Point;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -27,19 +26,27 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ShareActionProvider;
+import android.widget.TextView;
 import android.widget.Toolbar;
 import android.widget.Toolbar.OnMenuItemClickListener;
 
 import se.karpestam.mediashow.Constants;
-import se.karpestam.mediashow.CursorLoaderQuery;
+import se.karpestam.mediashow.CursorLoader.CursorLoaderQuery;
+import se.karpestam.mediashow.CursorLoader.FolderQuery;
+import se.karpestam.mediashow.CursorLoader.FoldersQuery;
+import se.karpestam.mediashow.CursorLoader.PhotosAndVideosQuery;
+import se.karpestam.mediashow.Drawer.DrawerItem;
+import se.karpestam.mediashow.Drawer.ItemViewType;
 import se.karpestam.mediashow.Fullscreen.FullscreenActivity;
-import se.karpestam.mediashow.Grid.DrawerListAdapter.DrawerItemClickListener;
+import se.karpestam.mediashow.Drawer.DrawerAdapter;
+import se.karpestam.mediashow.Drawer.DrawerAdapter.DrawerItemClickListener;
 import se.karpestam.mediashow.Grid.GridAdapter.GridClickListener;
 import se.karpestam.mediashow.R;
 
 
 public class GridActivity extends Activity implements LoaderManager.LoaderCallbacks<Cursor>,
-        OnSharedPreferenceChangeListener, GridClickListener, OnMenuItemClickListener,
+        GridClickListener, OnMenuItemClickListener,
         DrawerItemClickListener {
 
     private int mLastFirstVisibleItem = 0;
@@ -48,12 +55,15 @@ public class GridActivity extends Activity implements LoaderManager.LoaderCallba
     private GridAdapter mGridAdapter;
     private WindowManager mWindowManager;
     //    private Spinner mThemeSpinner;
-    private CursorLoaderQuery mCursorLoaderQuery;
-    //    private LinearLayout mSettingsLayout;
+    private CursorLoaderQuery mGridQuery;
+    private CursorLoaderQuery mDrawerQuery;
     private ActionMode mActionMode;
     private ActionBarDrawerToggle mDrawerToggle;
     private DrawerLayout mDrawerLayout;
     private RecyclerView mDrawerList;
+    private ShareActionProvider mShareActionProvider;
+    private DrawerAdapter mDrawerAdapter;
+    private TextView mFolderTextView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -61,19 +71,16 @@ public class GridActivity extends Activity implements LoaderManager.LoaderCallba
         if (savedInstanceState != null) {
             mLastFirstVisibleItem = savedInstanceState.getInt("position");
         }
-        mWindowManager = (WindowManager)getSystemService(Context.WINDOW_SERVICE);
+        mDrawerQuery = CursorLoaderQuery.getCursorLoaderQuery(CursorLoaderQuery.CursorQuery.FOLDER);
+        mWindowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
         int numColumns = getResources().getInteger(R.integer.grid_columns);
         final Point point = new Point();
         mWindowManager.getDefaultDisplay().getSize(point);
         mGridAdapter = new GridAdapter(getApplicationContext(), point.x, point.y, numColumns,
                 this);
         setContentView(R.layout.grid_activity);
-        final int cursorLoaderQuery = getSharedPreferences(Constants.SHARED_PREFS_FILE_NAME,
-                Context.MODE_PRIVATE).getInt(Constants.PREFS_FILTER, 0);
-        final int theme = getSharedPreferences(Constants.SHARED_PREFS_FILE_NAME,
-                Context.MODE_PRIVATE).getInt(Constants.THEME, 0);
-        mCursorLoaderQuery = CursorLoaderQuery.getCursorLoaderQuery(cursorLoaderQuery);
-        mGridView = (RecyclerView)findViewById(R.id.grid_view);
+        mGridQuery = CursorLoaderQuery.getCursorLoaderQuery(CursorLoaderQuery.CursorQuery.PHOTOS_AND_VIDEOS);
+        mGridView = (RecyclerView) findViewById(R.id.grid_view);
         mGridView.addOnScrollListener(new OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -88,28 +95,35 @@ public class GridActivity extends Activity implements LoaderManager.LoaderCallba
                 mLastFirstVisibleItem = currentFirstVisibleItem[0];
             }
         });
-//        mSettingsLayout = (LinearLayout)view.findViewById(R.id.settings_layout);
         mGridLayoutManager = new StaggeredGridLayoutManager(
                 getResources().getInteger(R.integer.grid_columns),
                 StaggeredGridLayoutManager.VERTICAL);
         mGridLayoutManager
                 .setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
         mGridView.setLayoutManager(mGridLayoutManager);
-        Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setActionBar(toolbar);
-        mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
                 R.string.open_navigation_drawer, R.string.close_navigation_drawer) {
             @Override
             public void onDrawerClosed(View drawerView) {
                 super.onDrawerClosed(drawerView);
+
+            }
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+
             }
         };
-        mDrawerList = (RecyclerView)findViewById(R.id.drawer_list);
+        mDrawerList = (RecyclerView) findViewById(R.id.drawer_list);
+        mFolderTextView = (TextView) findViewById(R.id.folder_text_view);
         mDrawerList.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-        mDrawerList.setAdapter(new DrawerListAdapter(this));
+        mDrawerAdapter = new DrawerAdapter(getApplicationContext(), this);
+        mDrawerList.setAdapter(mDrawerAdapter);
         mDrawerLayout.setDrawerListener(mDrawerToggle);
-        mDrawerToggle.syncState();
 //        mThemeSpinner = (Spinner)view.findViewById(R.id.theme_spinner);
 //        mThemeSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
 //            @Override
@@ -129,13 +143,53 @@ public class GridActivity extends Activity implements LoaderManager.LoaderCallba
 //        mThemeSpinner.setSelection(theme);
 //        DrawerLayout drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
         getLoaderManager().initLoader(0, null, this);
+        getLoaderManager().initLoader(1, null, this);
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+
+        mDrawerToggle.syncState();
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return new CursorLoader(getApplicationContext(), mCursorLoaderQuery.getUri(),
-                mCursorLoaderQuery.getProjection(), mCursorLoaderQuery.getSelection(),
-                mCursorLoaderQuery.getSelectionArgs(), mCursorLoaderQuery.getSortOrder());
+        switch (id) {
+            case 0:
+                return new CursorLoader(getApplicationContext(), mGridQuery.getUri(),
+                        mGridQuery.getProjection(), mGridQuery.getSelection(),
+                        mGridQuery.getSelectionArgs(), mGridQuery.getSortOrder());
+            case 1:
+                return new CursorLoader(getApplicationContext(), mDrawerQuery.getUri(), mDrawerQuery.getProjection(), mDrawerQuery.getSelection(), mDrawerQuery.getSelectionArgs(), mDrawerQuery.getSortOrder());
+        }
+        return null;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, final Cursor cursor) {
+        Log.d(Constants.LOG_TAG, GridActivity.class.getSimpleName() + " onLoadFinished()");
+
+        switch (loader.getId()) {
+            case 0:
+                mGridAdapter.setCursor(cursor);
+                if (mGridView.getAdapter() == null) {
+                    mGridView.setAdapter(mGridAdapter);
+                }
+//                mGridView.smoothScrollToPosition(mLastFirstVisibleItem);
+                break;
+            case 1:
+                mDrawerAdapter.setBucketCursor(cursor);
+                break;
+        }
+    }
+
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        Log.d(Constants.LOG_TAG, GridActivity.class.getSimpleName() + " onLoaderReset()");
+        int[] firstPositions = mGridLayoutManager.findFirstVisibleItemPositions(null);
+        mLastFirstVisibleItem = firstPositions[0];
     }
 
     @Override
@@ -177,34 +231,6 @@ public class GridActivity extends Activity implements LoaderManager.LoaderCallba
             mDrawerLayout.closeDrawer(Gravity.START);
         } else {
             super.onBackPressed();
-        }
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, final Cursor cursor) {
-        Log.d(Constants.LOG_TAG, GridActivity.class.getSimpleName() + " onLoadFinished()");
-
-        mGridAdapter.setCursor(cursor);
-        if (mGridView.getAdapter() == null) {
-            mGridView.setAdapter(mGridAdapter);
-        }
-        mGridView.smoothScrollToPosition(mLastFirstVisibleItem);
-    }
-
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        Log.d(Constants.LOG_TAG, GridActivity.class.getSimpleName() + " onLoaderReset()");
-        int[] firstPositions = mGridLayoutManager.findFirstVisibleItemPositions(null);
-        mLastFirstVisibleItem = firstPositions[0];
-    }
-
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-        Log.d(Constants.LOG_TAG, GridActivity.class.getSimpleName() + " " +
-                "onSharedPreferenceChanged() " + s);
-        if (s.equals(Constants.PREFS_FILTER)) {
-
         }
     }
 
@@ -263,6 +289,8 @@ public class GridActivity extends Activity implements LoaderManager.LoaderCallba
                 public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
                     mActionMode = actionMode;
                     mActionMode.getMenuInflater().inflate(R.menu.menu_actions, menu);
+                    MenuItem menuItem = menu.findItem(R.id.menu_item_share);
+                    mShareActionProvider = (ShareActionProvider) menuItem.getActionProvider();
                     mActionMode.setTitle("Select items");
                     return true;
                 }
@@ -278,7 +306,7 @@ public class GridActivity extends Activity implements LoaderManager.LoaderCallba
                         case R.id.action_delete:
                             mActionMode.finish();
                             return true;
-                        case R.id.action_share:
+                        case R.id.menu_item_share:
                             mActionMode.finish();
                             return true;
                     }
@@ -296,22 +324,22 @@ public class GridActivity extends Activity implements LoaderManager.LoaderCallba
     }
 
     @Override
-    public void onDrawerItemClicked(int position) {
-        Log.d("MATS", "onDrawerItemClicked");
-        mCursorLoaderQuery = CursorLoaderQuery.getCursorLoaderQuery(position);
+    public void onDrawerItemAllClicked() {
+        mFolderTextView.setVisibility(View.GONE);
+        mGridQuery = new PhotosAndVideosQuery();
+        getActionBar().setSubtitle(R.string.drawer_item_all);
         getLoaderManager().restartLoader(0, null, this);
         mDrawerLayout.closeDrawer(Gravity.START);
-        switch (position) {
-            case 0:
-                getActionBar().setTitle("Photos and videos");
-                break;
-            case 1:
-                getActionBar().setTitle("Photos");
-                break;
-            case 2:
-                getActionBar().setTitle("Videos");
-                break;
-        }
+    }
+
+    @Override
+    public void onDrawerItemFolderClicked(String bucketId, String bucketDisplayName) {
+        mFolderTextView.setVisibility(View.VISIBLE);
+        mGridQuery = new FolderQuery(bucketId);
+        getActionBar().setSubtitle(bucketDisplayName);
+        mFolderTextView.setText(bucketDisplayName);
+        getLoaderManager().restartLoader(0, null, this);
+        mDrawerLayout.closeDrawer(Gravity.START);
     }
 
     @Override

@@ -1,9 +1,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical"
-              tools:context=".MainActivity">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
 
     <Toolbar
         android:id="@+id/toolbar"
@@ -12,25 +12,42 @@
         android:background="?android:attr/colorPrimary"
         android:elevation="10dp"
         android:minHeight="?android:attr/actionBarSize">
+
+        <Spinner
+            android:id="@+id/filter_spinner"
+            style="@style/SpinnerStyle"
+            android:layout_width="10dp"
+            android:layout_height="wrap_content"
+            android:entries="@array/filter_arrays"></Spinner>
     </Toolbar>
+
 
     <android.support.v4.widget.DrawerLayout
         android:id="@+id/drawer_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_weight="2">
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/grid_view"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent" />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/drawer_list"
             android:layout_width="240dp"
             android:layout_height="match_parent"
             android:layout_gravity="start"
-            android:background="?android:attr/colorBackground"/>
-
+            android:background="?android:attr/colorBackground" />
 
     </android.support.v4.widget.DrawerLayout>
+
+    <TextView
+        android:id="@+id/folder_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0"
+        android:text="Folder path should be here"
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"
+        android:visibility="gone" />
 </LinearLayout>

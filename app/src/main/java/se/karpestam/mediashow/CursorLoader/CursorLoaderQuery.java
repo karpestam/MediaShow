@@ -1,4 +1,4 @@
-package se.karpestam.mediashow;
+package se.karpestam.mediashow.CursorLoader;
 
 import android.net.Uri;
 
@@ -12,8 +12,17 @@ public abstract class CursorLoaderQuery {
     private final String[] mSelectionArgs;
     private final String mSortOrder;
 
+    public enum CursorQuery {
+        NONE,
+        PHOTOS_AND_VIDEOS,
+        PHOTOS,
+        VIDEOS,
+        ALL_FOLDERS,
+        FOLDER
+    }
+
     public CursorLoaderQuery(Uri uri, String[] projection, String selection,
-            String[] selectionArgs, String sortOrder) {
+                             String[] selectionArgs, String sortOrder) {
         mUri = uri;
         mProjection = projection;
         mSelection = selection;
@@ -21,14 +30,18 @@ public abstract class CursorLoaderQuery {
         mSortOrder = sortOrder;
     }
 
-    public static CursorLoaderQuery getCursorLoaderQuery(int number) {
-        switch (number) {
-            case 0:
+    public static CursorLoaderQuery getCursorLoaderQuery(CursorQuery cursorQuery) {
+        switch (cursorQuery) {
+            case PHOTOS_AND_VIDEOS:
                 return new PhotosAndVideosQuery();
-            case 1:
+            case PHOTOS:
                 return new PhotosQuery();
-            case 2:
+            case VIDEOS:
                 return new VideosQuery();
+            case FOLDER:
+                return new FoldersQuery();
+            case NONE:
+                return null;
             default:
                 return new PhotosAndVideosQuery();
         }

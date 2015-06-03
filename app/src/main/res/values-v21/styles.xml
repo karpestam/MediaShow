@@ -4,18 +4,20 @@
     <style name="AppThemeDefault" parent="android:Theme.DeviceDefault.NoActionBar">
         <item name="android:windowActionModeOverlay">true</item>
         <item name="android:actionModeBackground">?android:attr/colorPrimary</item>
-        <!--<item name="android:windowTranslucentNavigation">@bool/navigation_translucent</item>-->
+        <item name="android:navigationBarColor">?android:attr/colorPrimaryDark</item>
     </style>
 
 
     <style name="AppThemeLight" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:windowActionModeOverlay">true</item>
         <item name="android:actionModeBackground">?android:attr/colorPrimary</item>
+        <item name="android:navigationBarColor">?android:attr/colorPrimaryDark</item>
     </style>
 
     <style name="AppThemeDark" parent="android:Theme.Material.NoActionBar">
         <item name="android:windowActionModeOverlay">true</item>
         <item name="android:actionModeBackground">?android:attr/colorPrimary</item>
+        <item name="android:navigationBarColor">?android:attr/colorPrimaryDark</item>
         <!--<item name="android:windowTranslucentNavigation">@bool/navigation_translucent</item>-->
     </style>
 
@@ -34,8 +36,8 @@
         <item name="android:windowTranslucentStatus">true</item>
     </style>
 
-    <style name="ActionBarStyle" parent="android:Widget.Material.ActionBar">
-        <!--<item name="android:background">#00695C</item>-->
+    <style name="SpinnerStyle" parent="android:Widget.Material.Spinner">
+        <item name="android:textAppearance">@android:style/TextAppearance.DeviceDefault.Large</item>
 
     </style>
 

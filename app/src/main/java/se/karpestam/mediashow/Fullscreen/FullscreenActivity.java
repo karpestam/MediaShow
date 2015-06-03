@@ -15,7 +15,7 @@ import android.view.View;
 import android.view.WindowManager;
 
 import se.karpestam.mediashow.Constants;
-import se.karpestam.mediashow.CursorLoaderQuery;
+import se.karpestam.mediashow.CursorLoader.CursorLoaderQuery;
 import se.karpestam.mediashow.R;
 
 public class FullscreenActivity extends FragmentActivity implements LoaderManager
@@ -31,9 +31,7 @@ public class FullscreenActivity extends FragmentActivity implements LoaderManage
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
-        mCursorLoaderQuery = CursorLoaderQuery.getCursorLoaderQuery(
-                getSharedPreferences(Constants.SHARED_PREFS_FILE_NAME, Context.MODE_PRIVATE)
-                        .getInt(Constants.PREFS_FILTER, 0));
+        mCursorLoaderQuery = CursorLoaderQuery.getCursorLoaderQuery(CursorLoaderQuery.CursorQuery.PHOTOS_AND_VIDEOS);
         if (savedInstanceState != null) {
             mStartPosition = savedInstanceState.getInt(CURSOR_START_POSITION);
         } else {

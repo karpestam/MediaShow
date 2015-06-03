@@ -118,7 +118,7 @@ public class BitmapRequester {
                                 bitmapRequest.mHighQuality ? MediaStore.Video.Thumbnails
                                         .FULL_SCREEN_KIND : MediaStore.Video.Thumbnails.MINI_KIND);
                     }
-                    if (!bitmapRequest.mHighQuality) {
+                    if (!bitmapRequest.mHighQuality && bitmap != null) {
                         mBitmapDiskCache.add(bitmapRequest.mPath, bitmap);
                     }
                 }

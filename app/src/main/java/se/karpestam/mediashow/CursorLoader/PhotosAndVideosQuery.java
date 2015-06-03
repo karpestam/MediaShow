@@ -1,4 +1,4 @@
-package se.karpestam.mediashow;
+package se.karpestam.mediashow.CursorLoader;
 
 import android.provider.MediaStore;
 

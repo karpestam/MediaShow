@@ -11,7 +11,7 @@
     android:layout_width="240dp"
     android:layout_height="wrap_content"
 
-    android:padding="16dp"
+    android:padding="12dp"
     android:textAppearance="@android:style/TextAppearance.Medium"/>
 
 </LinearLayout>
