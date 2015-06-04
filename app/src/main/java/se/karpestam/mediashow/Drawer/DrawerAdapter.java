@@ -20,13 +20,11 @@ public class DrawerAdapter extends RecyclerView.Adapter<DrawerAdapter.ItemViewHo
 
     private final DrawerItemClickListener mDrawerItemClickListener;
     private final Context mContext;
-    private CursorLoaderQuery mCursorLoaderQuery;
     private Cursor mBucketCursor = null;
 
     public DrawerAdapter(Context context, DrawerItemClickListener drawerItemClickListener) {
         mContext = context;
         mDrawerItemClickListener = drawerItemClickListener;
-        mCursorLoaderQuery = CursorLoaderQuery.getCursorLoaderQuery(CursorLoaderQuery.CursorQuery.FOLDER);
     }
 
     public interface DrawerItemClickListener {
@@ -42,14 +40,14 @@ public class DrawerAdapter extends RecyclerView.Adapter<DrawerAdapter.ItemViewHo
             case ItemViewType.DRAWER_ITEM_FOLDER_HEADER: {
                 View view = parent.inflate(parent.getContext(), R.layout.drawer_header, null);
                 ItemViewHolder itemViewHolder = new ItemViewHolder(view);
-                itemViewHolder.textView = (TextView) view.findViewById(R.id.item_text);
+                itemViewHolder.textView = (TextView)view.findViewById(R.id.item_text);
                 return itemViewHolder;
             }
             case ItemViewType.DRAWER_ITEM_ALL:
             case ItemViewType.DRAWER_ITEM_FOLDER: {
                 View view = parent.inflate(parent.getContext(), R.layout.drawer_item, null);
                 ItemViewHolder itemViewHolder = new ItemViewHolder(view);
-                itemViewHolder.textView = (TextView) view.findViewById(R.id.item_text);
+                itemViewHolder.textView = (TextView)view.findViewById(R.id.item_text);
                 return itemViewHolder;
             }
 
@@ -79,12 +77,16 @@ public class DrawerAdapter extends RecyclerView.Adapter<DrawerAdapter.ItemViewHo
                 break;
             case ItemViewType.DRAWER_ITEM_FOLDER:
                 mBucketCursor.moveToPosition(position - 3);
-                final String bucketDisplayName = mBucketCursor.getString(mBucketCursor.getColumnIndex(MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME));
+                final String bucketDisplayName = mBucketCursor.getString(mBucketCursor
+                        .getColumnIndex(MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME));
+                final String bucketId = mBucketCursor.getString(
+                        mBucketCursor.getColumnIndex(MediaStore.Images.ImageColumns.BUCKET_ID));
                 holder.textView.setText(bucketDisplayName);
                 holder.itemView.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        mDrawerItemClickListener.onDrawerItemFolderClicked(mBucketCursor.getString(mBucketCursor.getColumnIndex(MediaStore.Images.ImageColumns.BUCKET_ID)), bucketDisplayName);
+                        mDrawerItemClickListener
+                                .onDrawerItemFolderClicked(bucketId, bucketDisplayName);
                     }
                 });
                 break;

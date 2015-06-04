@@ -16,6 +16,7 @@ import android.view.WindowManager;
 
 import se.karpestam.mediashow.Constants;
 import se.karpestam.mediashow.CursorLoader.CursorLoaderQuery;
+import se.karpestam.mediashow.MainApplication;
 import se.karpestam.mediashow.R;
 
 public class FullscreenActivity extends FragmentActivity implements LoaderManager
@@ -23,7 +24,6 @@ public class FullscreenActivity extends FragmentActivity implements LoaderManage
     public static final String CURSOR_START_POSITION = "cursor_start_position";
     private WindowManager mWindowManager;
     private int mStartPosition;
-    private CursorLoaderQuery mCursorLoaderQuery;
     private ViewPager mViewPager;
     private ViewPagerAdapter mViewPagerAdapter;
 
@@ -31,27 +31,31 @@ public class FullscreenActivity extends FragmentActivity implements LoaderManage
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
-        mCursorLoaderQuery = CursorLoaderQuery.getCursorLoaderQuery(CursorLoaderQuery.CursorQuery.PHOTOS_AND_VIDEOS);
         if (savedInstanceState != null) {
             mStartPosition = savedInstanceState.getInt(CURSOR_START_POSITION);
         } else {
             mStartPosition = getIntent().getIntExtra(CURSOR_START_POSITION, 0);
         }
-        mWindowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+        mWindowManager = (WindowManager)getSystemService(Context.WINDOW_SERVICE);
         setContentView(R.layout.fullscreen_activity);
-        mViewPager = (ViewPager) findViewById(R.id.pager);
+        mViewPager = (ViewPager)findViewById(R.id.pager);
         mViewPager.setOffscreenPageLimit(1);
         mViewPager.setPageTransformer(true, new DepthPageTransformer());
         mViewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
         getSupportLoaderManager().restartLoader(0, null, this);
+
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        setResult(RESULT_OK, getIntent().putExtra(CURSOR_START_POSITION, mViewPager.getCurrentItem()));
+        super.onBackPressed();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Intent intent = new Intent();
-        intent.putExtra(CURSOR_START_POSITION, mStartPosition);
-        setResult(RESULT_OK, intent);
         getSupportLoaderManager().destroyLoader(0);
     }
 
@@ -63,9 +67,11 @@ public class FullscreenActivity extends FragmentActivity implements LoaderManage
 
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        return new CursorLoader(getApplicationContext(), mCursorLoaderQuery.getUri(),
-                mCursorLoaderQuery.getProjection(), mCursorLoaderQuery.getSelection(),
-                mCursorLoaderQuery.getSelectionArgs(), mCursorLoaderQuery.getSortOrder());
+        CursorLoaderQuery cursorLoaderQuery = ((MainApplication)getApplication())
+                .getCursorLoaderQuery();
+        return new CursorLoader(getApplicationContext(), cursorLoaderQuery.getUri(),
+                cursorLoaderQuery.getProjection(), cursorLoaderQuery.getSelection(),
+                cursorLoaderQuery.getSelectionArgs(), cursorLoaderQuery.getSortOrder());
     }
 
     @Override

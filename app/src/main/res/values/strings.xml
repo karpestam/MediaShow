@@ -2,7 +2,7 @@
     <string name="app_name">MediaShow</string>
 
     <string name="drawer_header_item_all">Show</string>
-    <string name="drawer_item_all">All content</string>
+    <string name="drawer_item_all">All</string>
     <string name="drawer_item_folder_header">Show Folder</string>
     <string name="action_settings">Settings</string>
     <string name="action_share">Share</string>

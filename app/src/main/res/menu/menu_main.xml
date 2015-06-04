@@ -1,25 +1,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".MainActivity">
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:context=".MainActivity">
     <item
-        android:id="@+id/action_settings"
-        android:icon="@android:drawable/ic_menu_more"
-        android:orderInCategory="100"
-        android:showAsAction="never"
-        android:title="Settings" />
+        android:id="@+id/menu_item_filter"
+        android:actionViewClass="android.widget.Spinner"
+        android:showAsAction="ifRoom"
+        android:title="Theme..."/>
     <item
-        android:id="@+id/theme_default"
-        android:orderInCategory="100"
-        android:showAsAction="never"
-        android:title="Default theme" />
-    <item
-        android:id="@+id/theme_light"
-        android:orderInCategory="100"
-        android:showAsAction="never"
-        android:title="Light theme" />
-    <item
-        android:id="@+id/theme_dark"
-        android:orderInCategory="100"
-        android:showAsAction="never"
-        android:title="Dark theme" />
+        android:id="@+id/menu_item_theme"
+        android:actionViewClass="android.widget.Spinner"
+        android:showAsAction="collapseActionView"
+        android:title="Theme..."/>
 </menu>
