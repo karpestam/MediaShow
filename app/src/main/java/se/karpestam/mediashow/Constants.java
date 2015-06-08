@@ -10,6 +10,9 @@ public class Constants {
     public static final String LOG_TAG = "MediaShow";
 
     public static final String THEME = "theme";
+
+    public static final String FILTER = "filter";
+
     private Constants() {
         /* Prevent instantiation. */
     }
