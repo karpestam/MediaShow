@@ -188,6 +188,30 @@ public class GridActivity extends Activity implements LoaderManager.LoaderCallba
                 android.R.layout.simple_spinner_dropdown_item,
                 getResources().getStringArray(R.array.filter_arrays));
         filterSpinner.setAdapter(filtersArrayAdapter);
+        final int queryFilter = getSharedPreferences(Constants.SHARED_PREFS_FILE_NAME, Context.MODE_PRIVATE).getInt(Constants.FILTER, 0);
+        filterSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (position != queryFilter) {
+                    getSharedPreferences(Constants.SHARED_PREFS_FILE_NAME, Context.MODE_PRIVATE)
+                            .edit().putInt(Constants.FILTER, position).apply();
+                    CursorLoaderQuery cursorLoaderQuery = ((MainApplication)getApplication()).getCursorLoaderQuery();
+                    cursorLoaderQuery.set
+                    switch (queryFilter) {
+                        case 0:
+                        case 1:
+                        case 2:
+                    }
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+        filterSpinner.setSelection(queryFilter);
+
         Spinner themeSpinner = (Spinner)menu.findItem(R.id.menu_item_theme).getActionView();
         ArrayAdapter<String> themesArrayAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_dropdown_item,
