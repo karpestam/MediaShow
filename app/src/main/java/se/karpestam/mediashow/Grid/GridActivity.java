@@ -34,6 +34,11 @@ import android.widget.TextView;
 import android.widget.Toolbar;
 import android.widget.Toolbar.OnMenuItemClickListener;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Set;
+
 import se.karpestam.mediashow.Constants;
 import se.karpestam.mediashow.CursorLoader.CursorLoaderQuery;
 import se.karpestam.mediashow.CursorLoader.FolderQuery;
@@ -177,7 +182,7 @@ public class GridActivity extends Activity implements LoaderManager.LoaderCallba
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.menu_options, menu);
         Spinner filterSpinner = (Spinner)menu.findItem(R.id.menu_item_filter).getActionView();
         ArrayAdapter<String> filtersArrayAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_dropdown_item,
@@ -216,7 +221,13 @@ public class GridActivity extends Activity implements LoaderManager.LoaderCallba
         if (mDrawerToggle.onOptionsItemSelected(item)) {
             return true;
         }
-        return super.onOptionsItemSelected(item);
+        switch (item.getItemId()) {
+            case R.id.menu_item_select:
+                createActionMode();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override
@@ -250,11 +261,19 @@ public class GridActivity extends Activity implements LoaderManager.LoaderCallba
     @Override
     public void onClicked(int position, String data, View view) {
         if (mActionMode != null) {
-            mGridAdapter.setSelected(data, view, position);
+            mGridAdapter.setSelected(data, position);
             final int size = mGridAdapter.getSelected().size();
             if (size > 1) {
                 mActionMode.setSubtitle(mGridAdapter.getSelected().size() + " items selected");
             } else if (size == 1) {
+                Intent intent = new Intent(Intent.ACTION_SEND);
+                intent.setType("image/jpeg");
+                intent = Intent.createChooser(intent, "Share a picture...");
+//                Set<String> keySet = mGridAdapter.getSelected().keySet();
+//                for (String uri : keySet) {
+//                    intent.putExtra(Intent.EXTRA_STREAM, uri);
+//                }
+                mShareActionProvider.setShareIntent(intent);
                 mActionMode.setSubtitle(mGridAdapter.getSelected().size() + " item selected");
             } else {
                 mActionMode.setSubtitle("No item selected");
@@ -269,46 +288,13 @@ public class GridActivity extends Activity implements LoaderManager.LoaderCallba
                     .makeScaleUpAnimation(view, 0, 0, view.getWidth(), view.getHeight())
                     .toBundle());
         }
+
     }
 
     @Override
     public void onLongClicked(final int position, String data, View view) {
         if (mActionMode == null) {
-            startActionMode(new Callback() {
-                @Override
-                public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
-                    mActionMode = actionMode;
-                    mActionMode.getMenuInflater().inflate(R.menu.menu_actions, menu);
-                    MenuItem menuItem = menu.findItem(R.id.menu_item_share);
-                    mShareActionProvider = (ShareActionProvider)menuItem.getActionProvider();
-                    mActionMode.setTitle("Select items");
-                    return true;
-                }
-
-                @Override
-                public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
-                    return false;
-                }
-
-                @Override
-                public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
-                    switch (menuItem.getItemId()) {
-                        case R.id.action_delete:
-                            mActionMode.finish();
-                            return true;
-                        case R.id.menu_item_share:
-                            mActionMode.finish();
-                            return true;
-                    }
-                    return false;
-                }
-
-                @Override
-                public void onDestroyActionMode(ActionMode actionMode) {
-                    mGridAdapter.clearAllSelected();
-                    mActionMode = null;
-                }
-            });
+            createActionMode();
             onClicked(position, data, view);
         }
     }
@@ -376,5 +362,48 @@ public class GridActivity extends Activity implements LoaderManager.LoaderCallba
                 break;
         }
         super.onApplyThemeResource(theme, resid, first);
+    }
+
+    private void createActionMode() {
+        startActionMode(new Callback() {
+            @Override
+            public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
+                mActionMode = actionMode;
+                mActionMode.getMenuInflater().inflate(R.menu.menu_actions, menu);
+                MenuItem menuItem = menu.findItem(R.id.menu_item_share);
+                mShareActionProvider = (ShareActionProvider)menuItem.getActionProvider();
+//                mShareActionProvider.setShareIntent();
+                mActionMode.setTitle("Select items");
+                mActionMode.setSubtitle("No item selected");
+                return true;
+            }
+
+            @Override
+            public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
+                return false;
+            }
+
+            @Override
+            public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
+                switch (menuItem.getItemId()) {
+                    case R.id.action_delete:
+                        mGridAdapter.getSelected();
+                        mActionMode.finish();
+                        return true;
+                    case R.id.menu_item_share:
+//                        startActivity(mShareActionProvider.);
+                        mActionMode.finish();
+                        return true;
+                }
+                return false;
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode actionMode) {
+                mGridAdapter.clearAllSelected();
+                mShareActionProvider = null;
+                mActionMode = null;
+            }
+        });
     }
 }

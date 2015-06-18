@@ -4,14 +4,12 @@
     <item
         android:id="@+id/action_delete"
         android:icon="@android:drawable/ic_menu_delete"
-        android:orderInCategory="100"
         android:showAsAction="always"
         android:title="Delete" />
     <item
         android:id="@+id/menu_item_share"
         android:actionProviderClass="android.widget.ShareActionProvider"
         android:icon="@android:drawable/ic_menu_share"
-        android:orderInCategory="100"
         android:showAsAction="always"
         android:title="Share" />
 </menu>

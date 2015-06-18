@@ -4,11 +4,15 @@
     <item
         android:id="@+id/menu_item_filter"
         android:actionViewClass="android.widget.Spinner"
-        android:showAsAction="ifRoom"
-        android:title="Theme..."/>
+        android:showAsAction="ifRoom"/>
     <item
         android:id="@+id/menu_item_theme"
         android:actionViewClass="android.widget.Spinner"
         android:showAsAction="collapseActionView"
         android:title="Theme..."/>
+    <item
+        android:id="@+id/menu_item_select"
+        android:showAsAction="never"
+        android:title="Select..."
+        />
 </menu>

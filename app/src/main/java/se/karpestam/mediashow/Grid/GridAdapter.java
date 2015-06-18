@@ -127,7 +127,7 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> im
         return mSelectedList;
     }
 
-    public void setSelected(String data, View view, int position) {
+    public void setSelected(String data, int position) {
         boolean isSelected = mSelectedList.containsKey(data);
         if (isSelected) {
             mSelectedList.remove(data);
