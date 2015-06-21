@@ -22,7 +22,7 @@ public class MainApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        mCursorLoaderQuery = new PhotosAndVideosQuery();
+        mCursorLoaderQuery = new PhotosAndVideosQuery(0);
     }
 
     /**

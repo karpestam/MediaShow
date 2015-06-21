@@ -12,8 +12,4 @@ public class FolderQuery extends CursorLoaderQuery {
         mBucketId = bucketId;
     }
 
-    @Override
-    void setQueryFilter(int queryFilter) {
-        mQueryFilter = queryFilter;
-    }
 }

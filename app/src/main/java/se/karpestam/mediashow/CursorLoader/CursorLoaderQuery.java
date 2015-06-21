@@ -39,5 +39,7 @@ public abstract class CursorLoaderQuery {
         return mSortOrder;
     }
 
-    abstract void setQueryFilter(int queryFilter);
+    public void setQueryFilter(int queryFilter) {
+        mQueryFilter = queryFilter;
+    }
 }

@@ -10,6 +10,7 @@ import android.content.Loader;
 import android.content.res.Resources.Theme;
 import android.database.Cursor;
 import android.graphics.Point;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -73,14 +74,14 @@ public class GridActivity extends Activity implements LoaderManager.LoaderCallba
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mWindowManager = (WindowManager)getSystemService(Context.WINDOW_SERVICE);
+        mWindowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
         int numColumns = getResources().getInteger(R.integer.grid_columns);
         final Point point = new Point();
         mWindowManager.getDefaultDisplay().getSize(point);
         mGridAdapter = new GridAdapter(getApplicationContext(), point.x, point.y, numColumns,
                 this);
         setContentView(R.layout.grid_activity);
-        mGridView = (RecyclerView)findViewById(R.id.grid_view);
+        mGridView = (RecyclerView) findViewById(R.id.grid_view);
         mGridView.addOnScrollListener(new OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -101,10 +102,10 @@ public class GridActivity extends Activity implements LoaderManager.LoaderCallba
         mGridLayoutManager
                 .setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
         mGridView.setLayoutManager(mGridLayoutManager);
-        Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle(R.string.drawer_item_all);
         setActionBar(toolbar);
-        mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
                 R.string.open_navigation_drawer, R.string.close_navigation_drawer) {
             @Override
@@ -119,8 +120,8 @@ public class GridActivity extends Activity implements LoaderManager.LoaderCallba
 
             }
         };
-        mDrawerList = (RecyclerView)findViewById(R.id.drawer_list);
-        mFolderTextView = (TextView)findViewById(R.id.folder_text_view);
+        mDrawerList = (RecyclerView) findViewById(R.id.drawer_list);
+        mFolderTextView = (TextView) findViewById(R.id.folder_text_view);
         mDrawerList.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         mDrawerAdapter = new DrawerAdapter(getApplicationContext(), this);
         mDrawerList.setAdapter(mDrawerAdapter);
@@ -140,13 +141,13 @@ public class GridActivity extends Activity implements LoaderManager.LoaderCallba
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         switch (id) {
             case GRID_CURSOR_LOADER:
-                CursorLoaderQuery cursorLoaderQuery = ((MainApplication)getApplication())
+                CursorLoaderQuery cursorLoaderQuery = ((MainApplication) getApplication())
                         .getCursorLoaderQuery();
                 return new CursorLoader(getApplicationContext(), cursorLoaderQuery.getUri(),
                         cursorLoaderQuery.getProjection(), cursorLoaderQuery.getSelection(),
                         cursorLoaderQuery.getSelectionArgs(), cursorLoaderQuery.getSortOrder());
             case DRAWER_CURSOR_LOADER:
-                CursorLoaderQuery foldersQuery = new FoldersQuery();
+                CursorLoaderQuery foldersQuery = new FoldersQuery(0);
                 return new CursorLoader(getApplicationContext(), foldersQuery.getUri(),
                         foldersQuery.getProjection(), foldersQuery.getSelection(),
                         foldersQuery.getSelectionArgs(), foldersQuery.getSortOrder());
@@ -183,7 +184,7 @@ public class GridActivity extends Activity implements LoaderManager.LoaderCallba
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_options, menu);
-        Spinner filterSpinner = (Spinner)menu.findItem(R.id.menu_item_filter).getActionView();
+        Spinner filterSpinner = (Spinner) menu.findItem(R.id.menu_item_filter).getActionView();
         ArrayAdapter<String> filtersArrayAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_dropdown_item,
                 getResources().getStringArray(R.array.filter_arrays));
@@ -195,8 +196,8 @@ public class GridActivity extends Activity implements LoaderManager.LoaderCallba
                 if (position != queryFilter) {
                     getSharedPreferences(Constants.SHARED_PREFS_FILE_NAME, Context.MODE_PRIVATE)
                             .edit().putInt(Constants.FILTER, position).apply();
-                    CursorLoaderQuery cursorLoaderQuery = ((MainApplication)getApplication()).getCursorLoaderQuery();
-                    cursorLoaderQuery.set
+                    CursorLoaderQuery cursorLoaderQuery = ((MainApplication) getApplication()).getCursorLoaderQuery();
+//                    cursorLoaderQuery.set
                     switch (queryFilter) {
                         case 0:
                         case 1:
@@ -212,7 +213,7 @@ public class GridActivity extends Activity implements LoaderManager.LoaderCallba
         });
         filterSpinner.setSelection(queryFilter);
 
-        Spinner themeSpinner = (Spinner)menu.findItem(R.id.menu_item_theme).getActionView();
+        Spinner themeSpinner = (Spinner) menu.findItem(R.id.menu_item_theme).getActionView();
         ArrayAdapter<String> themesArrayAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_dropdown_item,
                 getResources().getStringArray(R.array.theme_arrays));
@@ -222,7 +223,7 @@ public class GridActivity extends Activity implements LoaderManager.LoaderCallba
         themeSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int position,
-                    long l) {
+                                       long l) {
                 if (position != theme) {
                     getSharedPreferences(Constants.SHARED_PREFS_FILE_NAME, Context.MODE_PRIVATE)
                             .edit().putInt(Constants.THEME, position).apply();
@@ -283,20 +284,21 @@ public class GridActivity extends Activity implements LoaderManager.LoaderCallba
     }
 
     @Override
-    public void onClicked(int position, String data, View view) {
+    public void onClicked(int position, Uri uri, View view) {
         if (mActionMode != null) {
-            mGridAdapter.setSelected(data, position);
+            mGridAdapter.setSelected(uri, position);
             final int size = mGridAdapter.getSelected().size();
             if (size > 1) {
                 mActionMode.setSubtitle(mGridAdapter.getSelected().size() + " items selected");
             } else if (size == 1) {
                 Intent intent = new Intent(Intent.ACTION_SEND);
-                intent.setType("image/jpeg");
+                intent.setType("image/*");
                 intent = Intent.createChooser(intent, "Share a picture...");
-//                Set<String> keySet = mGridAdapter.getSelected().keySet();
-//                for (String uri : keySet) {
-//                    intent.putExtra(Intent.EXTRA_STREAM, uri);
-//                }
+                Set<Uri> keySet = mGridAdapter.getSelected().keySet();
+                for (Uri uris : keySet) {
+                    Log.d("MATS", "uri " + uris);
+                    intent.putExtra(Intent.EXTRA_STREAM, uri);
+                }
                 mShareActionProvider.setShareIntent(intent);
                 mActionMode.setSubtitle(mGridAdapter.getSelected().size() + " item selected");
             } else {
@@ -316,17 +318,17 @@ public class GridActivity extends Activity implements LoaderManager.LoaderCallba
     }
 
     @Override
-    public void onLongClicked(final int position, String data, View view) {
+    public void onLongClicked(final int position, Uri uri, View view) {
         if (mActionMode == null) {
             createActionMode();
-            onClicked(position, data, view);
+            onClicked(position, uri, view);
         }
     }
 
     @Override
     public void onDrawerItemAllClicked() {
         mFolderTextView.setVisibility(View.GONE);
-        ((MainApplication)getApplication()).setCursorLoaderQuery(new PhotosAndVideosQuery());
+        ((MainApplication) getApplication()).setCursorLoaderQuery(new PhotosAndVideosQuery(0));
         getActionBar().setTitle(R.string.drawer_item_all);
         getActionBar().setSubtitle("");
         getLoaderManager().restartLoader(GRID_CURSOR_LOADER, null, this);
@@ -336,7 +338,7 @@ public class GridActivity extends Activity implements LoaderManager.LoaderCallba
     @Override
     public void onDrawerItemFolderClicked(String bucketId, String bucketDisplayName) {
         mFolderTextView.setVisibility(View.VISIBLE);
-        ((MainApplication)getApplication()).setCursorLoaderQuery(new FolderQuery(bucketId));
+        ((MainApplication) getApplication()).setCursorLoaderQuery(new FolderQuery(bucketId, 0));
         getActionBar().setTitle("Folder");
         getActionBar().setSubtitle(bucketDisplayName);
         mFolderTextView.setText(bucketDisplayName);
@@ -359,12 +361,6 @@ public class GridActivity extends Activity implements LoaderManager.LoaderCallba
 //                mGridLayoutManager.setSpanCount(columnsToReduce);
 //                mGridAdapter.notifyDataSetChanged();
 //                return true;
-            case R.id.menu_item_theme:
-//                mSettingsLayout.setVisibility(
-//                        mSettingsLayout.getVisibility() == View.GONE ? View.VISIBLE : View.GONE);
-//                LayoutParams params = (LayoutParams)mToolbar.getLayoutParams();
-//                params.height
-                return true;
         }
         return false;
     }
@@ -395,8 +391,7 @@ public class GridActivity extends Activity implements LoaderManager.LoaderCallba
                 mActionMode = actionMode;
                 mActionMode.getMenuInflater().inflate(R.menu.menu_actions, menu);
                 MenuItem menuItem = menu.findItem(R.id.menu_item_share);
-                mShareActionProvider = (ShareActionProvider)menuItem.getActionProvider();
-//                mShareActionProvider.setShareIntent();
+                mShareActionProvider = (ShareActionProvider) menuItem.getActionProvider();
                 mActionMode.setTitle("Select items");
                 mActionMode.setSubtitle("No item selected");
                 return true;

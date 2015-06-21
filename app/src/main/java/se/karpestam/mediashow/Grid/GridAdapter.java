@@ -1,8 +1,10 @@
 package se.karpestam.mediashow.Grid;
 
+import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Files.FileColumns;
 import android.support.v7.widget.RecyclerView;
@@ -31,7 +33,7 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> im
     private int mNumColumns;
     private int mPreviousPosition;
     private GridClickListener mGridClickListener;
-    private HashMap<String, Integer> mSelectedList;
+    private HashMap<Uri, Integer> mSelectedList;
 
     public GridAdapter(Context context, int screenWidth, int screenHeight, int numColumns,
                        GridClickListener gridClickListener) {
@@ -46,9 +48,9 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> im
     }
 
     interface GridClickListener {
-        void onClicked(int position, String data, View view);
+        void onClicked(int position, Uri uri, View view);
 
-        void onLongClicked(int position, String data, View view);
+        void onLongClicked(int position, Uri uri, View view);
     }
 
     @Override
@@ -67,6 +69,8 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> im
                 .getInt(mCursor.getColumnIndex(MediaStore.Files.FileColumns.MEDIA_TYPE));
         final int orientation = mCursor
                 .getInt(mCursor.getColumnIndex(MediaStore.Images.Media.ORIENTATION));
+        final int id = mCursor.getInt(mCursor.getColumnIndex(MediaStore.MediaColumns._ID));
+        Uri uri = ContentUris.withAppendedId(MediaStore.Files.getContentUri("external"), id);
         int width = mCursor.getInt(mCursor.getColumnIndex(FileColumns.WIDTH));
         int height = mCursor.getInt(mCursor.getColumnIndex(FileColumns.HEIGHT));
         float aspectRatio = (float) width / height;
@@ -77,7 +81,7 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> im
                 isLandscape = false;
                 break;
         }
-        viewHolder.bindViewHolder(position, data);
+        viewHolder.bindViewHolder(position, uri);
         viewHolder.mImageView.setTag(data);
         StaggeredGridLayoutManager.LayoutParams params = (StaggeredGridLayoutManager
                 .LayoutParams) viewHolder.mImageView
@@ -127,12 +131,12 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> im
         return mSelectedList;
     }
 
-    public void setSelected(String data, int position) {
-        boolean isSelected = mSelectedList.containsKey(data);
+    public void setSelected(Uri uri, int position) {
+        boolean isSelected = mSelectedList.containsKey(uri);
         if (isSelected) {
-            mSelectedList.remove(data);
+            mSelectedList.remove(uri);
         } else {
-            mSelectedList.put(data, position);
+            mSelectedList.put(uri, position);
         }
         notifyDataSetChanged();
     }
@@ -192,7 +196,7 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> im
         public ImageView mImageView;
         private int mPosition;
         private boolean mIsSelected;
-        private String mData;
+        private Uri mUri;
 
         public ViewHolder(View v) {
             super(v);
@@ -203,19 +207,19 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.ViewHolder> im
 
         @Override
         public void onClick(View v) {
-            mGridClickListener.onClicked(mPosition, mData, mImageView);
+            mGridClickListener.onClicked(mPosition, mUri, mImageView);
         }
 
         @Override
         public boolean onLongClick(View view) {
-            mGridClickListener.onLongClicked(mPosition, mData, mImageView);
+            mGridClickListener.onLongClicked(mPosition, mUri, mImageView);
             return true;
         }
 
-        public void bindViewHolder(int position, String data) {
+        public void bindViewHolder(int position, Uri uri) {
             mPosition = position;
-            mData = data;
-            mIsSelected = mSelectedList.containsKey(mData);
+            mUri = uri;
+            mIsSelected = mSelectedList.containsKey(mUri);
             mImageView.setSelected(mIsSelected);
         }
     }
