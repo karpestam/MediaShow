@@ -12,6 +12,7 @@ import android.database.Cursor;
 import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -25,6 +26,7 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -35,9 +37,6 @@ import android.widget.TextView;
 import android.widget.Toolbar;
 import android.widget.Toolbar.OnMenuItemClickListener;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Set;
 
 import se.karpestam.mediashow.Constants;
@@ -45,8 +44,6 @@ import se.karpestam.mediashow.CursorLoader.CursorLoaderQuery;
 import se.karpestam.mediashow.CursorLoader.FolderQuery;
 import se.karpestam.mediashow.CursorLoader.FoldersQuery;
 import se.karpestam.mediashow.CursorLoader.PhotosAndVideosQuery;
-import se.karpestam.mediashow.Drawer.DrawerAdapter;
-import se.karpestam.mediashow.Drawer.DrawerAdapter.DrawerItemClickListener;
 import se.karpestam.mediashow.Fullscreen.FullscreenActivity;
 import se.karpestam.mediashow.Grid.GridAdapter.GridClickListener;
 import se.karpestam.mediashow.MainApplication;
@@ -54,34 +51,28 @@ import se.karpestam.mediashow.R;
 
 
 public class GridActivity extends Activity implements LoaderManager.LoaderCallbacks<Cursor>,
-        GridClickListener, OnMenuItemClickListener, DrawerItemClickListener {
+        GridClickListener, OnMenuItemClickListener {
 
     private static final int GRID_CURSOR_LOADER = 1;
-    private static final int DRAWER_CURSOR_LOADER = 2;
     private int mLastFirstVisibleItem = 0;
     private RecyclerView mGridView;
     private StaggeredGridLayoutManager mGridLayoutManager;
     private GridAdapter mGridAdapter;
     private WindowManager mWindowManager;
     private ActionMode mActionMode;
-    private ActionBarDrawerToggle mDrawerToggle;
-    private DrawerLayout mDrawerLayout;
-    private RecyclerView mDrawerList;
     private ShareActionProvider mShareActionProvider;
-    private DrawerAdapter mDrawerAdapter;
-    private TextView mFolderTextView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mWindowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+        mWindowManager = (WindowManager)getSystemService(Context.WINDOW_SERVICE);
         int numColumns = getResources().getInteger(R.integer.grid_columns);
         final Point point = new Point();
         mWindowManager.getDefaultDisplay().getSize(point);
         mGridAdapter = new GridAdapter(getApplicationContext(), point.x, point.y, numColumns,
                 this);
         setContentView(R.layout.grid_activity);
-        mGridView = (RecyclerView) findViewById(R.id.grid_view);
+        mGridView = (RecyclerView)findViewById(R.id.grid_view);
         mGridView.addOnScrollListener(new OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -102,55 +93,29 @@ public class GridActivity extends Activity implements LoaderManager.LoaderCallba
         mGridLayoutManager
                 .setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
         mGridView.setLayoutManager(mGridLayoutManager);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar);
         toolbar.setTitle(R.string.drawer_item_all);
         setActionBar(toolbar);
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
-                R.string.open_navigation_drawer, R.string.close_navigation_drawer) {
-            @Override
-            public void onDrawerClosed(View drawerView) {
-                super.onDrawerClosed(drawerView);
-
-            }
-
-            @Override
-            public void onDrawerOpened(View drawerView) {
-                super.onDrawerOpened(drawerView);
-
-            }
-        };
-        mDrawerList = (RecyclerView) findViewById(R.id.drawer_list);
-        mFolderTextView = (TextView) findViewById(R.id.folder_text_view);
-        mDrawerList.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-        mDrawerAdapter = new DrawerAdapter(getApplicationContext(), this);
-        mDrawerList.setAdapter(mDrawerAdapter);
-        mDrawerLayout.setDrawerListener(mDrawerToggle);
         getLoaderManager().initLoader(GRID_CURSOR_LOADER, null, this);
-        getLoaderManager().initLoader(DRAWER_CURSOR_LOADER, null, this);
-    }
+        FloatingActionButton filterActionButton = (FloatingActionButton)findViewById(R.id
+                .filter_action_button);
+        filterActionButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
 
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-
-        mDrawerToggle.syncState();
+            }
+        });
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         switch (id) {
             case GRID_CURSOR_LOADER:
-                CursorLoaderQuery cursorLoaderQuery = ((MainApplication) getApplication())
+                CursorLoaderQuery cursorLoaderQuery = ((MainApplication)getApplication())
                         .getCursorLoaderQuery();
                 return new CursorLoader(getApplicationContext(), cursorLoaderQuery.getUri(),
                         cursorLoaderQuery.getProjection(), cursorLoaderQuery.getSelection(),
                         cursorLoaderQuery.getSelectionArgs(), cursorLoaderQuery.getSortOrder());
-            case DRAWER_CURSOR_LOADER:
-                CursorLoaderQuery foldersQuery = new FoldersQuery(0);
-                return new CursorLoader(getApplicationContext(), foldersQuery.getUri(),
-                        foldersQuery.getProjection(), foldersQuery.getSelection(),
-                        foldersQuery.getSelectionArgs(), foldersQuery.getSortOrder());
             default:
                 throw new RuntimeException("Cursor loader id not valid.");
         }
@@ -167,9 +132,6 @@ public class GridActivity extends Activity implements LoaderManager.LoaderCallba
                     mGridView.setAdapter(mGridAdapter);
                 }
                 break;
-            case DRAWER_CURSOR_LOADER:
-                mDrawerAdapter.setBucketCursor(cursor);
-                break;
             default:
                 throw new RuntimeException("Cursor loader id not valid");
         }
@@ -184,19 +146,21 @@ public class GridActivity extends Activity implements LoaderManager.LoaderCallba
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_options, menu);
-        Spinner filterSpinner = (Spinner) menu.findItem(R.id.menu_item_filter).getActionView();
+        Spinner filterSpinner = (Spinner)menu.findItem(R.id.menu_item_filter).getActionView();
         ArrayAdapter<String> filtersArrayAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_dropdown_item,
                 getResources().getStringArray(R.array.filter_arrays));
         filterSpinner.setAdapter(filtersArrayAdapter);
-        final int queryFilter = getSharedPreferences(Constants.SHARED_PREFS_FILE_NAME, Context.MODE_PRIVATE).getInt(Constants.FILTER, 0);
+        final int queryFilter = getSharedPreferences(Constants.SHARED_PREFS_FILE_NAME,
+                Context.MODE_PRIVATE).getInt(Constants.FILTER, 0);
         filterSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (position != queryFilter) {
                     getSharedPreferences(Constants.SHARED_PREFS_FILE_NAME, Context.MODE_PRIVATE)
                             .edit().putInt(Constants.FILTER, position).apply();
-                    CursorLoaderQuery cursorLoaderQuery = ((MainApplication) getApplication()).getCursorLoaderQuery();
+                    CursorLoaderQuery cursorLoaderQuery = ((MainApplication)getApplication())
+                            .getCursorLoaderQuery();
 //                    cursorLoaderQuery.set
                     switch (queryFilter) {
                         case 0:
@@ -213,7 +177,7 @@ public class GridActivity extends Activity implements LoaderManager.LoaderCallba
         });
         filterSpinner.setSelection(queryFilter);
 
-        Spinner themeSpinner = (Spinner) menu.findItem(R.id.menu_item_theme).getActionView();
+        Spinner themeSpinner = (Spinner)menu.findItem(R.id.menu_item_theme).getActionView();
         ArrayAdapter<String> themesArrayAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_dropdown_item,
                 getResources().getStringArray(R.array.theme_arrays));
@@ -223,7 +187,7 @@ public class GridActivity extends Activity implements LoaderManager.LoaderCallba
         themeSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int position,
-                                       long l) {
+                    long l) {
                 if (position != theme) {
                     getSharedPreferences(Constants.SHARED_PREFS_FILE_NAME, Context.MODE_PRIVATE)
                             .edit().putInt(Constants.THEME, position).apply();
@@ -243,9 +207,6 @@ public class GridActivity extends Activity implements LoaderManager.LoaderCallba
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (mDrawerToggle.onOptionsItemSelected(item)) {
-            return true;
-        }
         switch (item.getItemId()) {
             case R.id.menu_item_select:
                 createActionMode();
@@ -256,21 +217,11 @@ public class GridActivity extends Activity implements LoaderManager.LoaderCallba
     }
 
     @Override
-    public void onBackPressed() {
-        if (mDrawerLayout.isDrawerOpen(Gravity.START)) {
-            mDrawerLayout.closeDrawer(Gravity.START);
-        } else {
-            super.onBackPressed();
-        }
-    }
-
-    @Override
     public void onDestroy() {
         Log.d(Constants.LOG_TAG, GridActivity.class.getSimpleName() + " " +
                 "onDestroy()");
         super.onDestroy();
         getLoaderManager().destroyLoader(GRID_CURSOR_LOADER);
-        getLoaderManager().destroyLoader(DRAWER_CURSOR_LOADER);
         mGridView.setAdapter(null);
         mGridAdapter.destroy();
     }
@@ -326,27 +277,6 @@ public class GridActivity extends Activity implements LoaderManager.LoaderCallba
     }
 
     @Override
-    public void onDrawerItemAllClicked() {
-        mFolderTextView.setVisibility(View.GONE);
-        ((MainApplication) getApplication()).setCursorLoaderQuery(new PhotosAndVideosQuery(0));
-        getActionBar().setTitle(R.string.drawer_item_all);
-        getActionBar().setSubtitle("");
-        getLoaderManager().restartLoader(GRID_CURSOR_LOADER, null, this);
-        mDrawerLayout.closeDrawer(Gravity.START);
-    }
-
-    @Override
-    public void onDrawerItemFolderClicked(String bucketId, String bucketDisplayName) {
-        mFolderTextView.setVisibility(View.VISIBLE);
-        ((MainApplication) getApplication()).setCursorLoaderQuery(new FolderQuery(bucketId, 0));
-        getActionBar().setTitle("Folder");
-        getActionBar().setSubtitle(bucketDisplayName);
-        mFolderTextView.setText(bucketDisplayName);
-        getLoaderManager().restartLoader(GRID_CURSOR_LOADER, null, this);
-        mDrawerLayout.closeDrawer(Gravity.START);
-    }
-
-    @Override
     public boolean onMenuItemClick(MenuItem menuItem) {
         switch (menuItem.getItemId()) {
 //            case R.id.action_add:
@@ -372,6 +302,7 @@ public class GridActivity extends Activity implements LoaderManager.LoaderCallba
                 .getInt(Constants.THEME, 0);
         switch (savedTheme) {
             case 0:
+                android.util.Log.d("MATS", "GridActivity.onApplyThemeResource()");
                 resid = R.style.AppThemeDefault;
                 break;
             case 1:
@@ -391,7 +322,7 @@ public class GridActivity extends Activity implements LoaderManager.LoaderCallba
                 mActionMode = actionMode;
                 mActionMode.getMenuInflater().inflate(R.menu.menu_actions, menu);
                 MenuItem menuItem = menu.findItem(R.id.menu_item_share);
-                mShareActionProvider = (ShareActionProvider) menuItem.getActionProvider();
+                mShareActionProvider = (ShareActionProvider)menuItem.getActionProvider();
                 mActionMode.setTitle("Select items");
                 mActionMode.setSubtitle("No item selected");
                 return true;
