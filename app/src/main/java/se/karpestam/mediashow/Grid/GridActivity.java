@@ -44,6 +44,8 @@ import se.karpestam.mediashow.CursorLoader.CursorLoaderQuery;
 import se.karpestam.mediashow.CursorLoader.FolderQuery;
 import se.karpestam.mediashow.CursorLoader.FoldersQuery;
 import se.karpestam.mediashow.CursorLoader.PhotosAndVideosQuery;
+import se.karpestam.mediashow.CursorLoader.PhotosQuery;
+import se.karpestam.mediashow.CursorLoader.VideosQuery;
 import se.karpestam.mediashow.Fullscreen.FullscreenActivity;
 import se.karpestam.mediashow.Grid.GridAdapter.GridClickListener;
 import se.karpestam.mediashow.MainApplication;
@@ -73,20 +75,6 @@ public class GridActivity extends Activity implements LoaderManager.LoaderCallba
                 this);
         setContentView(R.layout.grid_activity);
         mGridView = (RecyclerView)findViewById(R.id.grid_view);
-        mGridView.addOnScrollListener(new OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                final int[] currentFirstVisibleItem = mGridLayoutManager
-                        .findFirstVisibleItemPositions(null);
-
-                if (currentFirstVisibleItem[0] > mLastFirstVisibleItem) {
-//                    mToolbar.setVisibility(View.GONE);
-                } else if (currentFirstVisibleItem[0] < mLastFirstVisibleItem) {
-                }
-//                mLastFirstVisibleItem = currentFirstVisibleItem[0];
-            }
-        });
         mGridLayoutManager = new StaggeredGridLayoutManager(
                 getResources().getInteger(R.integer.grid_columns),
                 StaggeredGridLayoutManager.VERTICAL);
@@ -94,15 +82,44 @@ public class GridActivity extends Activity implements LoaderManager.LoaderCallba
                 .setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
         mGridView.setLayoutManager(mGridLayoutManager);
         Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar);
-        toolbar.setTitle(R.string.drawer_item_all);
         setActionBar(toolbar);
         getLoaderManager().initLoader(GRID_CURSOR_LOADER, null, this);
-        FloatingActionButton filterActionButton = (FloatingActionButton)findViewById(R.id
-                .filter_action_button);
+        FloatingActionButton filterActionButton = (FloatingActionButton)findViewById(
+                R.id.filter_action_button);
         filterActionButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                final int queryFilter = getSharedPreferences(Constants.SHARED_PREFS_FILE_NAME,
+                        Context.MODE_PRIVATE).getInt(Constants.FILTER, 0);
+                switch (queryFilter) {
+                    case 0:
+                        ((MainApplication)getApplication())
+                                .setCursorLoaderQuery(new PhotosQuery(0));
+                        getSharedPreferences(Constants.SHARED_PREFS_FILE_NAME,
+                                Context.MODE_PRIVATE).edit().putInt(Constants.FILTER, 1).apply();
+                        getLoaderManager().restartLoader(GRID_CURSOR_LOADER, null, GridActivity
+                                .this);
+                        getActionBar().setTitle("Photos");
+                        break;
+                    case 1:
+                        ((MainApplication)getApplication())
+                                .setCursorLoaderQuery(new VideosQuery(0));
+                        getSharedPreferences(Constants.SHARED_PREFS_FILE_NAME,
+                                Context.MODE_PRIVATE).edit().putInt(Constants.FILTER, 2).apply();
+                        getLoaderManager().restartLoader(GRID_CURSOR_LOADER, null, GridActivity
+                                .this);
+                        getActionBar().setTitle("Videos");
+                        break;
+                    case 2:
+                        ((MainApplication)getApplication())
+                                .setCursorLoaderQuery(new PhotosAndVideosQuery(0));
+                        getSharedPreferences(Constants.SHARED_PREFS_FILE_NAME,
+                                Context.MODE_PRIVATE).edit().putInt(Constants.FILTER, 0).apply();
+                        getLoaderManager().restartLoader(GRID_CURSOR_LOADER, null, GridActivity
+                                .this);
+                        getActionBar().setTitle("Photos and videos");
+                        break;
+                }
             }
         });
     }
@@ -146,37 +163,6 @@ public class GridActivity extends Activity implements LoaderManager.LoaderCallba
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_options, menu);
-        Spinner filterSpinner = (Spinner)menu.findItem(R.id.menu_item_filter).getActionView();
-        ArrayAdapter<String> filtersArrayAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_dropdown_item,
-                getResources().getStringArray(R.array.filter_arrays));
-        filterSpinner.setAdapter(filtersArrayAdapter);
-        final int queryFilter = getSharedPreferences(Constants.SHARED_PREFS_FILE_NAME,
-                Context.MODE_PRIVATE).getInt(Constants.FILTER, 0);
-        filterSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (position != queryFilter) {
-                    getSharedPreferences(Constants.SHARED_PREFS_FILE_NAME, Context.MODE_PRIVATE)
-                            .edit().putInt(Constants.FILTER, position).apply();
-                    CursorLoaderQuery cursorLoaderQuery = ((MainApplication)getApplication())
-                            .getCursorLoaderQuery();
-//                    cursorLoaderQuery.set
-                    switch (queryFilter) {
-                        case 0:
-                        case 1:
-                        case 2:
-                    }
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-        filterSpinner.setSelection(queryFilter);
-
         Spinner themeSpinner = (Spinner)menu.findItem(R.id.menu_item_theme).getActionView();
         ArrayAdapter<String> themesArrayAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_dropdown_item,

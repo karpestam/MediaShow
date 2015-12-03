@@ -4,13 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <LinearLayout
+    <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true">
 
         <Toolbar
             android:id="@+id/toolbar"
@@ -18,14 +17,16 @@
             android:layout_height="?android:attr/actionBarSize"
             android:background="?android:attr/colorPrimary"
             android:elevation="10dp"
-            android:minHeight="?android:attr/actionBarSize">
+            android:minHeight="?android:attr/actionBarSize"
+            app:layout_scrollFlags="scroll|enterAlways">
         </Toolbar>
+    </android.support.design.widget.AppBarLayout>
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/grid_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-    </LinearLayout>
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/grid_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/filter_action_button"

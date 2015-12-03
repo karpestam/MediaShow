@@ -2,10 +2,6 @@
       xmlns:tools="http://schemas.android.com/tools"
       tools:context=".MainActivity">
     <item
-        android:id="@+id/menu_item_filter"
-        android:actionViewClass="android.widget.Spinner"
-        android:showAsAction="ifRoom"/>
-    <item
         android:id="@+id/menu_item_theme"
         android:actionViewClass="android.widget.Spinner"
         android:showAsAction="collapseActionView"
