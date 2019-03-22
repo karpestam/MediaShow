@@ -4,10 +4,11 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.PorterDuff;
+import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 
-public class GridImageView extends ImageView {
+public class GridImageView extends AppCompatImageView {
     public GridImageView(Context context) {
         super(context);
     }

@@ -46,7 +46,6 @@ public class FullscreenVideoFragment extends Fragment implements BitmapResultLis
         Log.d(Constants.LOG_TAG, FullscreenVideoFragment.class
                 .getSimpleName() + " onCreateView() " + savedInstanceState);
 
-
         BitmapRequester.getInstance(getActivity().getApplicationContext())
                 .addListener(mListenerId, this);
         WindowManager windowManager = (WindowManager)getActivity()

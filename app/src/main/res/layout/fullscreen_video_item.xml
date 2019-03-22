@@ -24,7 +24,7 @@
     </FrameLayout>
 
     <LinearLayout
-        android:fitsSystemWindows="true"
+        android:fitsSystemWindows="false"
         android:id="@+id/video_controls"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

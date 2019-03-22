@@ -1,6 +1,5 @@
 package se.karpestam.mediashow.Media;
 
-import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.widget.ImageView;
 
 public class BitmapRequest {
